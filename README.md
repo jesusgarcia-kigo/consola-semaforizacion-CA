@@ -2,7 +2,7 @@
 
 Prototipo de la consola de caseta para registrar el acceso de vehículos, con semaforización de placas y domicilio restringido.
 
-**Sitio:** https://jesusgarcia-kigo.github.io/consola-de-guardia/
+**Sitio:** https://jesusgarcia-kigo.github.io/consola-semaforizacion-CA/
 
 ## Cómo se actualiza
 1. Edita `index.html` (o los archivos de `catalogos/` y `assets/`) en la rama `main`.
