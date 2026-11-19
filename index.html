@@ -127,6 +127,8 @@ FLEET.forEach(([p,st,mot,date,owner,cl,stt,h,br,mo,co,nota])=>{
   KIGO_REG[p]={brand:br,model:mo,color:co,hex:(COLORS.find(c=>c.name===co)||{}).hex||"#9CA3AF",logo:(BRANDS.find(b=>b.name===br)||{}).logo||"?"};
 });
 const semRows=()=>Object.keys(SEM_DB).map(p=>({plate:p,brand:(KIGO_REG[p]||{}).brand||"—",model:(KIGO_REG[p]||{}).model||"—",color:(KIGO_REG[p]||{}).color||"—",status:SEM_DB[p].status,motivo:SEM_DB[p].motivo||"—"}));
+/* Placas en México: 6 a 7 caracteres alfanuméricos (autos 6-7, motos 6, camiones 7). Se quitan guiones y espacios */
+const cleanPlate=(t)=>String(t).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7);
 const hoyTxt=()=>new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 
 const VISIT_TYPES=["Visitante","Proveedor","Repartidor","Servicio técnico","Emergencia","Uber / DiDi","Mudanza"];
@@ -952,7 +954,7 @@ function CheckInAuto(){
   },[plate]);
 
   const handleX=()=>{setConfirm(null);setAuthInfo(null);setPlate("");setPhase("idle");setResult(null);setContentDisabled(false);setBrand("");setModel("");setColor("");setVisitType("");setCluster("");setStreet("");setHouse("");setName("");setIsCustomBrand(false);ref.current?.focus();};
-  const handlePlateChange=(e)=>{const v=e.target.value.toUpperCase();setPlate(v);if(phase==="result")setContentDisabled(v===""||v!==searchedRef.current);};
+  const handlePlateChange=(e)=>{const v=cleanPlate(e.target.value);setPlate(v);if(phase==="result")setContentDisabled(v===""||v!==searchedRef.current);};
   /* Historial de la placa: el nombre de quien ingresa queda en «Nombre del propietario» (registros previos) */
   const rememberName=()=>{const k=(plate||"").toUpperCase(),n=(name||"").trim();if(!k||!n)return;NAME_HISTORY[k]=[n,...(NAME_HISTORY[k]||[]).filter(x=>x!==n)];};
   const handleRegister=()=>{
@@ -1047,7 +1049,7 @@ function CheckInAuto(){
           <div style={{marginLeft:90,marginBottom:34}}><div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#C2410C",zIndex:1}}>Placa *</label>
-              <input ref={ref} type="text" value={plate} onChange={e=>setPlate(e.target.value.toUpperCase())}
+              <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Ingresa la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #FF6900",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
@@ -1097,7 +1099,7 @@ function CheckInAuto(){
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#C2410C",zIndex:1}}>Placa *</label>
-              <input ref={ref} type="text" value={plate} onChange={handlePlateChange}
+              <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
                 aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #FF6900",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
               <button onClick={handleX} className="tr" aria-label="Limpiar placa"
@@ -1390,7 +1392,7 @@ function AddPlateModal({onClose,onAdd,existing}){
       <h2 style={{fontSize:20,fontWeight:700,color:T.slate900,marginBottom:20}}>Agregar placa</h2>
 
       <label style={{display:"block",fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".08em",marginBottom:6}}>Placa</label>
-      <input autoFocus value={plate} onChange={e=>setPlate(e.target.value.toUpperCase())} className="mono" style={{width:"100%",height:48,borderRadius:8,border:`1.5px solid ${T.border}`,padding:"0 12px",fontSize:18,fontWeight:700,color:T.slate900,letterSpacing:".06em",background:T.card,marginBottom:exists?4:16}}/>
+      <input autoFocus value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7} className="mono" style={{width:"100%",height:48,borderRadius:8,border:`1.5px solid ${T.border}`,padding:"0 12px",fontSize:18,fontWeight:700,color:T.slate900,letterSpacing:".06em",background:T.card,marginBottom:exists?4:16}}/>
       {exists&&<p style={{fontSize:13,color:"#B45309",marginBottom:12}}>Esta placa ya existe en el catálogo.</p>}
 
       <label style={{display:"block",fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".08em",marginBottom:6}}>Estado</label>
