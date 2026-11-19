@@ -60,7 +60,7 @@ const{useState,useRef,useCallback}=React;
 
 /* ═══ TOKENS ═══ */
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;};
-const DIS_BTN={background:"#E5E5E5",color:"#5F5F63",border:"1.5px solid #C9C9CE",boxShadow:"0 2px 0 rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.7)"};
+const DIS_BTN={cursor:"not-allowed",background:"#E5E5E5",color:"#5F5F63",border:"1.5px solid #C9C9CE",boxShadow:"0 2px 0 rgba(15,23,42,.14), inset 0 1px 0 rgba(255,255,255,.7)"};
 const T={kigo500:"#FF6900",kigo600:"#E55D00",kigo50:"#FFF7F0",umbral50:"#FEF9F8",slate900:"#0F172A",muted:"#475569",border:"#E5E7EB",card:"#FFFFFF",secondary:"#F4F4F5",danger:"#DC2626"};
 
 /* ═══ STATUS CONFIG ═══ */
@@ -192,6 +192,8 @@ const synthHouse=(c,st,h)=>{
   return SYNTH_HOUSES[k]={estatus:"",lote:`${st[0].toUpperCase()}-${parseInt(h,10)}`,modo:null,autorizados:[],motivo:"",autor:"",fecha:"",obs:"",
     comentarios:COMS[(hv>>>7)%COMS.length],detalles:DETS[(hv>>>11)%DETS.length],padron:pad};
 };
+/* Lote: código de la casa (ficha propia o inicial de la calle + número). Es como se nombra en el buscador y en la tarjeta */
+const loteOf=(s,h)=>{for(const k in HOUSE_DB){const p=k.split("|");if(p[1]===s&&p[2]===h&&HOUSE_DB[k].lote)return HOUSE_DB[k].lote;}return `${s[0].toUpperCase()}-${parseInt(h,10)}`;};
 const houseData=(c,st,h)=>HOUSE_DB[hKey(c,st,h)]||synthHouse(c,st,h);
 
 /* ═══ COPY: «actual» (v4_21 + PRD) vs «propuesto» (voz Kigo). Interruptor solo para el prototipo ═══ */
@@ -482,7 +484,7 @@ function Counter({value,onChange,disabled,label="Personas que ingresan"}){
   </div>);
 }
 
-/* ═══ BUSCAR UBICACIÓN: buscador por calle, casa, número o clúster, con navegación por niveles ═══ */
+/* ═══ BUSCAR UBICACIÓN: buscador por calle, lote o clúster, con navegación por niveles ═══ */
 const nrmTxt=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
 function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
   const[open,setOpen]=useState(false);
@@ -516,25 +518,25 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
   if(toks.length){
     const sts=[];const seen={};
     ALL.forEach(x=>{const k=x.c+"|"+x.s;if(!seen[k]&&toks.every(t=>nrmTxt(x.c+" "+x.s).includes(t))){seen[k]=1;sts.push({c:x.c,s:x.s});}});
-    const hs=ALL.filter(x=>toks.every(t=>nrmTxt(x.c+" "+x.s+" casa "+x.h).includes(t))).slice(0,40);
+    const hs=ALL.filter(x=>toks.every(t=>nrmTxt(x.c+" "+x.s+" lote "+loteOf(x.s,x.h)+" "+loteOf(x.s,x.h).replace("-","")+" "+x.h).includes(t))).slice(0,40);
     body=(<>
-      {sts.slice(0,6).map(x=>(<Row key={x.c+x.s} onClick={()=>{setPath({c:x.c,s:x.s});setQ("");}}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:600,whiteSpace:"nowrap"}}>Calle {x.s}</span><span style={{color:T.muted,fontSize:13,whiteSpace:"nowrap"}}>Clúster {x.c} · {(HOUSES_BY_STREET[x.s]||[]).length} casas</span><RestrCount n={countRestr(x.c,x.s)}/><Chev/></Row>))}
-      {hs.map(x=>{const r=isHouseRestr(x.c,x.s,x.h);return(<Row key={x.c+x.s+x.h} restr={r} onClick={()=>pick(x.c,x.s,x.h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Casa {x.h}</span><span style={{color:T.muted,fontSize:13}}>{x.s} · Clúster {x.c}</span>{r&&<Pill/>}</Row>);})}
-      {!sts.length&&!hs.length&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:13,color:T.muted}}>Sin resultados. Prueba con calle, número de casa o clúster.</div>}
+      {sts.slice(0,6).map(x=>(<Row key={x.c+x.s} onClick={()=>{setPath({c:x.c,s:x.s});setQ("");}}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:600,whiteSpace:"nowrap"}}>Calle {x.s}</span><span style={{color:T.muted,fontSize:13,whiteSpace:"nowrap"}}>Clúster {x.c} · {(HOUSES_BY_STREET[x.s]||[]).length} lotes</span><RestrCount n={countRestr(x.c,x.s)}/><Chev/></Row>))}
+      {hs.map(x=>{const r=isHouseRestr(x.c,x.s,x.h);return(<Row key={x.c+x.s+x.h} restr={r} onClick={()=>pick(x.c,x.s,x.h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Lote {loteOf(x.s,x.h)}</span><span style={{color:T.muted,fontSize:13}}>{x.s} · Clúster {x.c}</span>{r&&<Pill/>}</Row>);})}
+      {!sts.length&&!hs.length&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:13,color:T.muted}}>Sin resultados. Prueba con calle, lote o clúster.</div>}
     </>);
   }else if(!path.c){
     body=CLUSTERS.map(c=>(<Row key={c} onClick={()=>setPath({c,s:""})}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:500}}>Clúster {c}</span><RestrCount n={countRestr(c)}/><Chev/></Row>));
   }else if(!path.s){
-    body=(STREETS[path.c]||[]).map(st=>(<Row key={st} onClick={()=>setPath({c:path.c,s:st})}><span style={{fontWeight:500}}>Calle {st}</span><span style={{color:T.muted,fontSize:13}}>{(HOUSES_BY_STREET[st]||[]).length} casas</span><RestrCount n={countRestr(path.c,st)}/><Chev/></Row>));
+    body=(STREETS[path.c]||[]).map(st=>(<Row key={st} onClick={()=>setPath({c:path.c,s:st})}><span style={{fontWeight:500}}>Calle {st}</span><span style={{color:T.muted,fontSize:13}}>{(HOUSES_BY_STREET[st]||[]).length} lotes</span><RestrCount n={countRestr(path.c,st)}/><Chev/></Row>));
   }else{
-    body=(HOUSES_BY_STREET[path.s]||[]).map(h=>{const r=isHouseRestr(path.c,path.s,h);return(<Row key={h} restr={r} onClick={()=>pick(path.c,path.s,h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Casa {h}</span>{r&&<Pill/>}</Row>);});
+    body=(HOUSES_BY_STREET[path.s]||[]).map(h=>{const r=isHouseRestr(path.c,path.s,h);return(<Row key={h} restr={r} onClick={()=>pick(path.c,path.s,h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Lote {loteOf(path.s,h)}</span>{r&&<Pill/>}</Row>);});
   }
   const crumb=(!toks.length&&path.c)?(<div style={{display:"flex",gap:6,alignItems:"center",padding:"8px 10px",borderBottom:`1px solid ${T.border}`,flexWrap:"wrap"}}>
     <button type="button" onClick={()=>setPath({c:"",s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.border}`,background:T.card,fontSize:12,fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Todos</button>
     <button type="button" onClick={()=>setPath({c:path.c,s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${path.s?T.border:T.kigo500}`,background:path.s?T.card:T.kigo50,fontSize:12,fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Clúster {path.c}</button>
     {path.s&&<span style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.kigo500}`,background:T.kigo50,fontSize:12,fontWeight:600,color:T.slate900}}>Calle {path.s}</span>}
   </div>):null;
-  const val=has?(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}>{restricted&&<I n="lock" s={14} c="#B91C2E" sw={2.2}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Casa {house} · {street} · Clúster {cluster}</span></span>):"";
+  const val=has?(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}>{restricted&&<I n="lock" s={14} c="#B91C2E" sw={2.2}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Lote {loteOf(street,house)} · {street} · Clúster {cluster}</span></span>):"";
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Buscar ubicación" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
@@ -551,7 +553,7 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
       {open&&!disabled&&<>
         <div onClick={()=>{setOpen(false);setQ("");}} style={{position:"fixed",inset:0,zIndex:100}}/>
         <div className="au" style={{position:"absolute",top:"100%",right:0,width:"max(100%,400px)",marginTop:4,background:T.card,borderRadius:14,border:`1.5px solid ${T.border}`,boxShadow:"0 12px 40px rgba(15,23,42,0.12)",zIndex:101,maxHeight:340,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          <div style={{padding:"10px 14px 6px",fontSize:12,fontWeight:600,color:T.muted}}>{toks.length?"Resultados":path.s?`Casas de ${path.s}`:path.c?`Calles del clúster ${path.c}`:"Clústeres"}</div>
+          <div style={{padding:"10px 14px 6px",fontSize:12,fontWeight:600,color:T.muted}}>{toks.length?"Resultados":path.s?`Lotes de ${path.s}`:path.c?`Calles del clúster ${path.c}`:"Clústeres"}</div>
           {crumb}
           <div ref={listRef} className="ovc" style={{overflowY:"auto",flex:1}}>{body}</div>
         </div>
@@ -778,7 +780,7 @@ function CasaCard({dom,cluster,street,house}){
   if(d&&pad.length)pills.push(["res",`Colonos · ${pad.length}`,"users"]);
   if(d&&d.comentarios)pills.push(["com","Comentarios de referencia","note"]);
   if(d&&d.detalles)pills.push(["det","Detalles de referencia","note"]);
-  if(d&&!restr&&d.obs)pills.push(["obs","Observaciones de la casa","note"]);
+  if(d&&!restr&&d.obs)pills.push(["obs","Observaciones del lote","note"]);
   const txt={fontSize:14,fontWeight:500,lineHeight:1.55,color:T.slate900};
   return(
     <div className="asr" style={{borderRadius:14,background:T.card,border:`1px solid ${T.border}`,padding:"11px 14px"}}>
@@ -832,7 +834,7 @@ function DomCard({dom,cluster,street,house,name,informative,onPickName}){
         <span style={{width:40,height:40,borderRadius:12,background:"#fff",border:`1.5px solid ${r?REDLN:T.border}`,display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
           <I n={r?"lock":"home"} s={20} c={r&&!informative?RED:T.muted} sw={2.1}/></span>
         <div style={{minWidth:0}}>
-          <div style={{fontSize:17,fontWeight:700,color:r&&!informative?REDTX:T.slate900,lineHeight:1.2}}>{r?"Ingreso restringido a esta casa":C.domOkT}</div>
+          <div style={{fontSize:17,fontWeight:700,color:r&&!informative?REDTX:T.slate900,lineHeight:1.2}}>{r?"Ingreso restringido a este lote":C.domOkT}</div>
           {(r||C.domOkS)&&<div style={{fontSize:13,color:r&&!informative?REDSUB:T.muted,marginTop:3,lineHeight:1.35}}>{sub}</div>}
         </div>
       </div>
@@ -846,7 +848,7 @@ function DomCard({dom,cluster,street,house,name,informative,onPickName}){
           </div>
           <div style={{fontSize:13,color:T.muted,marginTop:8,lineHeight:1.45}}>{block?"Cualquier otra persona no puede pasar.":"Cualquier otra persona requiere confirmar con el domicilio."}</div>
         </>:<div style={{fontSize:14,fontWeight:500,lineHeight:1.5,color:T.slate900}}>{block?"Ninguna persona":"Ninguna: confirma siempre con el domicilio"}</div>,"aut")}
-        {d.obs&&sec("note","Observaciones de la casa",<div style={{fontSize:14,fontWeight:500,lineHeight:1.55,color:T.slate900}}>{d.obs}</div>,"obs",!r)}
+        {d.obs&&sec("note","Observaciones del lote",<div style={{fontSize:14,fontWeight:500,lineHeight:1.55,color:T.slate900}}>{d.obs}</div>,"obs",!r)}
       </div>}
     </div>
   );
@@ -909,7 +911,7 @@ function CopyToggle({onChange}){
   </>);
   return(
     <div role="group" aria-label="Opciones solo de prototipo" style={{position:"fixed",top:14,right:20,zIndex:150,display:"flex",alignItems:"center",gap:6,padding:"5px 6px 5px 14px",borderRadius:999,background:"#fff",border:`1.5px solid ${T.border}`,boxShadow:"0 4px 16px rgba(15,23,42,.08)",fontSize:12,color:T.muted}}>
-      {grp("Casa restringida",[["bloqueo","Bloquea"],["confirmar","Confirma"]],()=>RULE_MODE,k=>{RULE_MODE=k;})}
+      {grp("Lote restringido",[["bloqueo","Bloquea"],["confirmar","Confirma"]],()=>RULE_MODE,k=>{RULE_MODE=k;})}
     </div>
   );
 }
@@ -1039,7 +1041,7 @@ function CheckInAuto(){
 
   return(
     <div className="tr3" style={{zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
-      <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Casa con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
+      <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Lote con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
 
       {/* ═══ IDLE ═══ */}
       {phase==="idle"&&(
@@ -1182,7 +1184,7 @@ function CheckInAuto(){
                     <button onClick={onCta} aria-disabled={!canRegister} title="Atajo: Ctrl + Enter" aria-keyshortcuts="Control+Enter Meta+Enter" className="tr"
                       onMouseEnter={e=>{if(canRegister)e.currentTarget.style.transform="translateY(-1px)";}}
                       onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}
-                      style={{width:"100%",height:"clamp(56px,8.4vh,72px)",borderRadius:16,border:canRegister?"1.5px solid transparent":DIS_BTN.border,background:!canRegister?DIS_BTN.background:(isColono?"#00A63E":T.kigo600),color:!canRegister?DIS_BTN.color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:canRegister?"0 3px 2px rgba(0,0,0,.28)":DIS_BTN.boxShadow}}>
+                      style={{width:"100%",height:"clamp(56px,8.4vh,72px)",borderRadius:16,border:canRegister?"1.5px solid transparent":DIS_BTN.border,background:!canRegister?DIS_BTN.background:(isColono?"#00A63E":T.kigo600),color:!canRegister?DIS_BTN.color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:canRegister?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:canRegister?"0 3px 2px rgba(0,0,0,.28)":DIS_BTN.boxShadow}}>
                       {isColono?<>Abrir Pluma <I n="wifi" s={26} c={canRegister?"#FAFAFA":DIS_BTN.color}/></>:<>Registrar Acceso <I n="person" s={26} c={canRegister?"#FAFAFA":DIS_BTN.color}/></>}
                     </button>)}
                   {phase==="registered"&&(
