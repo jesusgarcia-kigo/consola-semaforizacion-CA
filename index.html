@@ -303,7 +303,7 @@ function BrandMark({name,s=24,w}){
 const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={26} w={44}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
 
 /* ═══ ETIQUETA FLOTANTE: placeholder dentro del campo; al enfocar o con valor sube como título ═══ */
-const FL=({label,req,up,act,need,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:up||leftDown===undefined?8:leftDown,top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent 50%,${bg||"#fff"} 50%)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
+const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:up||leftDown===undefined?8:leftDown,top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
 const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
 const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center",paddingTop:6};
 const fval={fontSize:14,fontWeight:600,lineHeight:"20px",color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"};
@@ -543,7 +543,7 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#404040":"#8A8A8A",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"default":"text"})}>
         <I n="search" s={20} c="#525252"/>
         <div style={fcell}>
-          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
+          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
             ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Buscar ubicación" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
             :<span style={fval}>{val}</span>}
@@ -1050,7 +1050,7 @@ function CheckInAuto(){
           <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 30px"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{marginLeft:90,marginBottom:34}}><div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Ingresa la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
@@ -1072,7 +1072,7 @@ function CheckInAuto(){
           <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 30px"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
             </div>
             <div style={{width:120,height:56,borderRadius:12,background:T.kigo500,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
@@ -1100,7 +1100,7 @@ function CheckInAuto(){
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
                 aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
