@@ -541,7 +541,7 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Buscar ubicación" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#404040":"#8A8A8A",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"default":"text"})}>
-        <I n="search" s={20} c="#525252"/>
+        <span aria-hidden="true" style={{display:"inline-flex",flexShrink:0,overflow:"hidden",width:(has&&restricted&&!open)?0:20,marginRight:(has&&restricted&&!open)?-8:0,opacity:(has&&restricted&&!open)?0:1,transition:"width .22s ease,margin .22s ease,opacity .18s ease"}}><I n="search" s={20} c="#525252"/></span>
         <div style={fcell}>
           <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
