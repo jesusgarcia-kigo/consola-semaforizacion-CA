@@ -780,7 +780,6 @@ function CasaCard({dom,cluster,street,house}){
   if(d&&pad.length)pills.push(["res",`Colonos · ${pad.length}`,"users"]);
   if(d&&d.comentarios)pills.push(["com","Comentarios de referencia","note"]);
   if(d&&d.detalles)pills.push(["det","Detalles de referencia","note"]);
-  if(d&&!restr&&d.obs)pills.push(["obs","Observaciones del lote","note"]);
   const txt={fontSize:14,fontWeight:500,lineHeight:1.55,color:T.slate900};
   return(
     <div className="asr" style={{borderRadius:14,background:T.card,border:`1px solid ${T.border}`,padding:"11px 14px"}}>
