@@ -1051,7 +1051,7 @@ function CheckInAuto(){
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
-                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Número de placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
               style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
