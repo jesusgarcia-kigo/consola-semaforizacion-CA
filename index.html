@@ -39,7 +39,7 @@ html,body{height:100%;overflow:hidden}
 .shake-reasons [role="alert"],.shake-reasons [role="status"]{animation:shake .45s}
 [data-hi="1"]{background:#FFF1E6!important}
 .lb-pan{scrollbar-width:none}.lb-pan::-webkit-scrollbar{display:none}
-@keyframes needpulse{0%{box-shadow:0 0 0 0 rgba(255,105,0,.55)}100%{box-shadow:0 0 0 10px rgba(255,105,0,0)}}
+@keyframes needpulse{0%{box-shadow:0 0 0 0 rgba(91,75,196,.55)}100%{box-shadow:0 0 0 10px rgba(91,75,196,0)}}
 .pulse{animation:needpulse .7s ease-out}
 .ev-hov{opacity:0;pointer-events:none;transition:opacity .22s ease}
 .ev-tile:hover .ev-hov,.ev-tile:focus-within .ev-hov{opacity:1;pointer-events:auto}
@@ -301,7 +301,7 @@ function BrandMark({name,s=24,w}){
 const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={26} w={44}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
 
 /* ═══ ETIQUETA FLOTANTE: placeholder dentro del campo; al enfocar o con valor sube como título ═══ */
-const FL=({label,req,up,act,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:up||leftDown===undefined?8:leftDown,top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent 50%,${bg||"#fff"} 50%)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
+const FL=({label,req,up,act,need,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:up||leftDown===undefined?8:leftDown,top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent 50%,${bg||"#fff"} 50%)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#4C3FB0":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
 const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
 const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center",paddingTop:6};
 const fval={fontSize:14,fontWeight:600,lineHeight:"20px",color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"};
@@ -365,7 +365,7 @@ function Fd({tone,dropUp,label,value,req,icon,editable,onChange,disabled,valueNo
   const flag=!!need&&!has;
   const up=has||act;
   const danger=tone==="danger";
-  const bc=danger?"#B91C1B":(act||flag)?"#FF6900":"#8A8A8A";
+  const bc=danger?"#B91C1B":act?"#FF6900":flag?"#5B4BC4":"#8A8A8A";
   const bg=danger?"#FEF2F2":disabled?T.secondary:"#fff";
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,transition:"opacity .3s",position:"relative"}}>
@@ -373,7 +373,7 @@ function Fd({tone,dropUp,label,value,req,icon,editable,onChange,disabled,valueNo
         data-fld="1" data-need={flag?"1":undefined} style={{...fbox({act:act||flag,bc,bg,h:tall?"calc(var(--fh,42px)*1.6)":undefined,cursor:disabled?"default":hasDropdown?"pointer":"text"}),alignItems:tall?"flex-start":"center",paddingTop:tall?11:0}}>
         {icon}
         <div style={{...fcell,height:tall?"auto":"100%",paddingTop:tall?2:6}}>
-          <FL label={label} req={req} up={up} act={act||flag} danger={danger} bg={bg} topDown={tall?12:undefined}/>
+          <FL label={label} req={req} up={up} act={act} need={flag&&!act} danger={danger} bg={bg} topDown={tall?12:undefined}/>
           {editable&&!hasDropdown
             ?<input ref={ref} value={txt} inputMode={inputMode} onChange={e=>{setTxt(e.target.value);if(onChange)onChange(e);}} onFocus={()=>setF(true)} onBlur={()=>setF(false)} disabled={disabled} aria-label={label} aria-required={req}
                style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
@@ -398,9 +398,9 @@ function ColorPicker({value,onSelect,disabled,need}){
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Color" onKeyDown={e=>{if(!disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);}else if(e.key==="Escape")setOpen(false);}} onClick={()=>!disabled&&setOpen(!open)}
-        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:(open||flag)?"#FF6900":"#8A8A8A",bg,cursor:disabled?"default":"pointer"})}>
+        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#5B4BC4":"#8A8A8A",bg,cursor:disabled?"default":"pointer"})}>
         {sel&&<span style={{width:44,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:18,height:18,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?`1px solid ${T.border}`:"none",boxShadow:"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
-        <div style={fcell}><FL label="Color" req up={up} act={open||flag} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
+        <div style={fcell}><FL label="Color" req up={up} act={open} need={flag&&!open} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
         <I n="chevron" s={14} c="#525252"/>
       </div>
       {open&&!disabled&&<>
@@ -439,9 +439,9 @@ function NameInput({value,onChange,plate,disabled,req,need}){
   const bg=disabled?T.secondary:"#fff";
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
-      <div className="tr" data-fld="1" data-need={flag?"1":undefined} style={fbox({act:f||flag,bc:(f||flag)?"#FF6900":"#8A8A8A",bg})}>
+      <div className="tr" data-fld="1" data-need={flag?"1":undefined} style={fbox({act:f||flag,bc:f?"#FF6900":flag?"#5B4BC4":"#8A8A8A",bg})}>
         <div style={fcell}>
-          <FL label="Nombre del propietario" req={req} up={up} act={f||flag} bg={bg}/>
+          <FL label="Nombre del propietario" req={req} up={up} act={f} need={flag&&!f} bg={bg}/>
           <input value={value||""} onChange={e=>{onChange(e);setShowSugg(true);}} onFocus={()=>{setF(true);if(history.length)setShowSugg(true);}} onBlur={()=>{setF(false);setTimeout(()=>setShowSugg(false),200);}} disabled={disabled} aria-label="Nombre del propietario"
             style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
         </div>
@@ -538,10 +538,10 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Buscar ubicación" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
-        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":(open||flag)?"#FF6900":"#8A8A8A",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"default":"text"})}>
+        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#5B4BC4":"#8A8A8A",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"default":"text"})}>
         <I n="search" s={20} c="#525252"/>
         <div style={fcell}>
-          <FL label="Buscar ubicación" req up={up} act={open||flag} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
+          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
             ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Buscar ubicación" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
             :<span style={fval}>{val}</span>}
@@ -1048,9 +1048,9 @@ function CheckInAuto(){
           <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 30px"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{marginLeft:90,marginBottom:34}}><div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#C2410C",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#4C3FB0",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
-                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Ingresa la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #FF6900",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Ingresa la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #5B4BC4",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
               style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
@@ -1070,8 +1070,8 @@ function CheckInAuto(){
           <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 30px"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#C2410C",zIndex:1}}>Placa *</label>
-              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #FF6900",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#4C3FB0",zIndex:1}}>Placa *</label>
+              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #5B4BC4",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
             </div>
             <div style={{width:120,height:56,borderRadius:12,background:T.kigo500,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <div className="ap" style={{width:18,height:18,border:"3px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
@@ -1098,10 +1098,10 @@ function CheckInAuto(){
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#C2410C",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 50%,#fff 50%)",padding:"0 6px",fontSize:13,fontWeight:600,color:"#4C3FB0",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
-                aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #FF6900",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #5B4BC4",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
               <button onClick={handleX} className="tr" aria-label="Limpiar placa"
                 style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",width:30,height:30,borderRadius:8,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#262626"}}>
                 <I n="x" s={18}/>
