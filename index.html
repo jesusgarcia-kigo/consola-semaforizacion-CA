@@ -293,19 +293,19 @@ function SH({t,bg}){
 }
 
 /* ═══ MARCA: logo + nombre ═══ */
-function BrandMark({name,s=24,w}){
+function BrandMark({name,s=24,w,left}){
   const b=BRANDS.find(x=>x.name===name)||{};
   const[bad,setBad]=useState(false);
-  const slot={width:w||Math.round(s*2.2),height:s,display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0};
-  if(b.img&&!bad)return(<span style={slot}><img src={b.img} alt="" onError={()=>setBad(true)} style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",display:"block"}}/></span>);
+  const slot={width:w||Math.round(s*2.2),height:s,display:"inline-flex",alignItems:"center",justifyContent:left?"flex-start":"center",flexShrink:0};
+  if(b.img&&!bad)return(<span style={slot}><img src={b.img} alt="" onError={()=>setBad(true)} style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",objectPosition:left?"left center":"center",display:"block"}}/></span>);
   return(<span style={{...slot,fontSize:13,fontWeight:600,color:"#737373",letterSpacing:".04em"}}>{b.logo||(name||"?").slice(0,2).toUpperCase()}</span>);
 }
-const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={26} w={44}/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
+const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={26} w={44} left/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
 
 /* ═══ ETIQUETA FLOTANTE: placeholder dentro del campo; al enfocar o con valor sube como título ═══ */
-const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:up||leftDown===undefined?8:leftDown,top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
-const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
-const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center",paddingTop:6};
+const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:(up||leftDown===undefined?8:leftDown)-(((bw||((act||need)?2.4:1)))-1),top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
+const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:o.act?"0 10.6px":"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
+const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center"};
 const fval={fontSize:14,fontWeight:600,lineHeight:"20px",color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%"};
 
 /* ═══ SMART DROPDOWN ═══ */
@@ -374,12 +374,12 @@ function Fd({tone,dropUp,label,value,req,icon,editable,onChange,disabled,valueNo
       <div className="tr" tabIndex={disabled?-1:(hasDropdown?0:undefined)} role={hasDropdown?"combobox":undefined} aria-expanded={hasDropdown?dd:undefined} aria-haspopup={hasDropdown?"listbox":undefined} aria-label={hasDropdown?label:undefined} onKeyDown={hasDropdown?(e=>{if(!disabled&&!dd&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setDd(true);}}):undefined} onClick={()=>{if(disabled)return;if(hasDropdown)setDd(!dd);else if(ref.current)ref.current.focus();}}
         data-fld="1" data-need={flag?"1":undefined} style={{...fbox({act:act||flag,bc,bg,h:tall?"calc(var(--fh,42px)*1.6)":undefined,cursor:disabled?"default":hasDropdown?"pointer":"text"}),alignItems:tall?"flex-start":"center",paddingTop:tall?11:0}}>
         {icon}
-        <div style={{...fcell,height:tall?"auto":"100%",paddingTop:tall?2:6}}>
+        <div style={{...fcell,height:tall?"auto":"100%",paddingTop:tall?2:0}}>
           <FL label={label} req={req} up={up} act={act} need={flag&&!act} danger={danger} bg={bg} topDown={tall?12:undefined}/>
           {editable&&!hasDropdown
             ?<input ref={ref} value={txt} inputMode={inputMode} onChange={e=>{setTxt(e.target.value);if(onChange)onChange(e);}} onFocus={()=>setF(true)} onBlur={()=>setF(false)} disabled={disabled} aria-label={label} aria-required={req}
                style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
-            :<span style={fval}>{valueNode||value||""}</span>}
+            :<span style={valueNode?{...fval,display:"flex",alignItems:"center"}:fval}>{valueNode||value||""}</span>}
         </div>
         {!disabled&&hasDropdown&&<I n="chevron" s={14} c="#525252"/>}
       </div>
@@ -401,7 +401,7 @@ function ColorPicker({value,onSelect,disabled,need}){
     <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Color" onKeyDown={e=>{if(!disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);}else if(e.key==="Escape")setOpen(false);}} onClick={()=>!disabled&&setOpen(!open)}
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#404040":"#8A8A8A",bg,cursor:disabled?"default":"pointer"})}>
-        {sel&&<span style={{width:44,height:26,display:"inline-flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><span style={{width:18,height:18,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?`1px solid ${T.border}`:"none",boxShadow:"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
+        {sel&&<span style={{width:44,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:18,height:18,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?`1px solid ${T.border}`:"none",boxShadow:"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
         <div style={fcell}><FL label="Color" req up={up} act={open} need={flag&&!open} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
         <I n="chevron" s={14} c="#525252"/>
       </div>
@@ -472,7 +472,7 @@ function Counter({value,onChange,disabled,label="Personas que ingresan"}){
   const btn={width:44,flexShrink:0,height:"100%",border:"none",background:"transparent",cursor:disabled?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#525252",fontFamily:"inherit"};
   const bg=disabled?T.secondary:"#fff";
   return(<div data-fld="1" style={{...fbox({bc:"#8A8A8A",bg,cursor:"default"}),padding:0,opacity:disabled?.55:1,width:"100%"}}>
-    <button type="button" aria-label="Menos personas" onClick={()=>!disabled&&set((parseInt(txt,10)||1)-1)} disabled={disabled} style={btn}>−</button>
+    <button type="button" aria-label="Menos personas" onClick={()=>!disabled&&set((parseInt(txt,10)||1)-1)} disabled={disabled} style={{...btn,justifyContent:"flex-start",paddingLeft:12}}>−</button>
     <div style={{flex:1,minWidth:0,height:"100%",position:"static"}}>
       <FL label={label} req up bg={bg}/>
       <input inputMode="numeric" pattern="[0-9]*" aria-label={label} value={txt} disabled={disabled}
@@ -480,7 +480,7 @@ function Counter({value,onChange,disabled,label="Personas que ingresan"}){
         onBlur={()=>{const n=parseInt(txt,10);set(isNaN(n)||n<1?1:n);}}
         style={{width:"100%",height:"100%",border:"none",outline:"none",background:"transparent",textAlign:"center",fontSize:15,fontWeight:600,color:"#262626",fontFamily:"inherit",padding:0}}/>
     </div>
-    <button type="button" aria-label="Más personas" onClick={()=>!disabled&&set((parseInt(txt,10)||0)+1)} disabled={disabled} style={btn}>+</button>
+    <button type="button" aria-label="Más personas" onClick={()=>!disabled&&set((parseInt(txt,10)||0)+1)} disabled={disabled} style={{...btn,justifyContent:"flex-end",paddingRight:11}}>+</button>
   </div>);
 }
 
@@ -546,7 +546,7 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
           <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
             ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Buscar ubicación" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
-            :<span style={fval}>{val}</span>}
+            :<span style={{...fval,display:"flex",alignItems:"center"}}>{val}</span>}
         </div>
         {has&&!disabled&&<button type="button" aria-label="Quitar ubicación" onClick={e=>{e.stopPropagation();setLoc("","","");setQ("");setPath({c:"",s:""});}} style={{width:24,height:24,borderRadius:6,border:`1px solid ${T.border}`,background:"#fff",display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><I n="x" s={12} c={T.muted}/></button>}
       </div>
