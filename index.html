@@ -650,9 +650,9 @@ function Evidence({hasPhotos,disabled,fixedH}){
   };
 
   return(
-    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:fixedH?"0 0 auto":1,minHeight:fixedH?0:88,display:"flex",flexDirection:"column"}}>
+    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:fixedH?"0 0 auto":1,minHeight:fixedH?0:96,display:"flex",flexDirection:"column"}}>
       <SH t="Evidencia" bg={hasPhotos?undefined:"#E7E5E4"}/>
-      <div style={fixedH?{display:"flex",gap:12,height:140}:{display:"flex",gap:"var(--g,12px)",flex:1,minHeight:0,maxHeight:170}}>
+      <div style={fixedH?{display:"flex",gap:12,height:"var(--ev,140px)"}:{display:"flex",gap:"var(--g,12px)",flex:1,minHeight:0,maxHeight:"var(--evmax,200px)"}}>
         {labels.map((lbl,i)=>{
           const imgSrc=hasPhotos?EVIDENCE_IMGS[i]:null;
           const isRetaking=retaken[i];
@@ -1044,7 +1044,7 @@ function CheckInAuto(){
   ctaRef.current=onCta;
 
   return(
-    <div className="tr3" style={{zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
+    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,48px),2px)","--sg":"round(clamp(12px,2.4vh,28px),4px)","--g":"round(clamp(6px,1.3vh,14px),2px)","--ev":"round(clamp(112px,15vh,180px),2px)","--evmax":"200px","--plh":"round(clamp(48px,6.4vh,60px),2px)","--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
       <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Lote con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
 
       {/* ═══ IDLE ═══ */}
@@ -1056,7 +1056,7 @@ function CheckInAuto(){
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
-                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
               style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
@@ -1077,7 +1077,7 @@ function CheckInAuto(){
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
-              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
+              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
             </div>
             <div style={{width:120,height:56,borderRadius:12,background:T.kigo500,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <div className="ap" style={{width:18,height:18,border:"3px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
@@ -1099,7 +1099,7 @@ function CheckInAuto(){
 
           <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1,minHeight:0}}>
             {/* ── LEFT (70%) ── */}
-            <div style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)"}}>
+            <div style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column"}}>
           {/* Placa */}
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
@@ -1107,7 +1107,7 @@ function CheckInAuto(){
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
-                aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
               <button onClick={handleX} className="tr" aria-label="Limpiar placa"
                 style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",width:30,height:30,borderRadius:8,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#525252"}}>
                 <I n="x" s={14} c="#525252"/>
@@ -1188,14 +1188,14 @@ function CheckInAuto(){
                     <button onClick={onCta} aria-disabled={!canRegister} title="Atajo: Ctrl + Enter" aria-keyshortcuts="Control+Enter Meta+Enter" className="tr"
                       onMouseEnter={e=>{if(canRegister)e.currentTarget.style.transform="translateY(-1px)";}}
                       onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}
-                      style={{width:"100%",height:"clamp(56px,8.4vh,72px)",borderRadius:16,border:canRegister?"1.5px solid transparent":DIS_BTN.border,background:!canRegister?DIS_BTN.background:(isColono?"#00A63E":T.kigo600),color:!canRegister?DIS_BTN.color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:canRegister?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:canRegister?"0 3px 2px rgba(0,0,0,.28)":DIS_BTN.boxShadow}}>
+                      style={{width:"100%",height:"var(--cta,64px)",borderRadius:16,border:canRegister?"1.5px solid transparent":DIS_BTN.border,background:!canRegister?DIS_BTN.background:(isColono?"#00A63E":T.kigo600),color:!canRegister?DIS_BTN.color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:canRegister?"pointer":"not-allowed",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:canRegister?"0 3px 2px rgba(0,0,0,.28)":DIS_BTN.boxShadow}}>
                       {isColono?<>Abrir Pluma <I n="wifi" s={26} c={canRegister?"#FAFAFA":DIS_BTN.color}/></>:<>Registrar Acceso <I n="person" s={26} c={canRegister?"#FAFAFA":DIS_BTN.color}/></>}
                     </button>)}
                   {phase==="registered"&&(
                     <button onClick={handleOpenBarrier} className="tr"
                       onMouseEnter={e=>e.currentTarget.style.transform="translateY(-1px)"}
                       onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}
-                      style={{width:"100%",height:"clamp(56px,8.4vh,72px)",borderRadius:16,border:"none",background:"#00A63E",color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:"0 3px 2px rgba(0,0,0,.28)"}}>
+                      style={{width:"100%",height:"var(--cta,64px)",borderRadius:16,border:"none",background:"#00A63E",color:"#FAFAFA",fontSize:20,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:"0 3px 2px rgba(0,0,0,.28)"}}>
                       Abrir Pluma <I n="wifi" s={26} c="#FAFAFA"/>
                     </button>)}
                 </div>)}
