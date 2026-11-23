@@ -130,6 +130,7 @@ FLEET.forEach(([p,st,mot,date,owner,cl,stt,h,br,mo,co,nota])=>{
 const semRows=()=>Object.keys(SEM_DB).map(p=>({plate:p,brand:(KIGO_REG[p]||{}).brand||"—",model:(KIGO_REG[p]||{}).model||"—",color:(KIGO_REG[p]||{}).color||"—",status:SEM_DB[p].status,motivo:SEM_DB[p].motivo||"—"}));
 /* Placas en México: 6 a 7 caracteres alfanuméricos (autos 6-7, motos 6, camiones 7). Se quitan guiones y espacios */
 const cleanPlate=(t)=>String(t).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7);
+const INSIDE=new Set();
 const hoyTxt=()=>new Date().toLocaleDateString("es-MX",{day:"numeric",month:"long",year:"numeric"});
 
 const VISIT_TYPES=["Visitante","Proveedor","Repartidor","Servicio técnico","Emergencia","Uber / DiDi","Mudanza"];
@@ -237,6 +238,7 @@ const I=({n,s=20,c="currentColor",sw=2})=>{
     search:<svg {...p}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
     plus:<svg {...p}><path d="M5 12h14"/><path d="M12 5v14"/></svg>,
     minus:<svg {...p}><path d="M5 12h14"/></svg>,
+    keyboard:<svg {...p}><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>,
     x:<svg {...p}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
     camera:<svg {...p}><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>,
     chevron:<svg {...p}><path d="m6 9 6 6 6-6"/></svg>,
@@ -262,14 +264,14 @@ const I=({n,s=20,c="currentColor",sw=2})=>{
 };
 
 /* ═══ SIDEBAR ═══ */
-function Sidebar({active,onNav}){
+function Sidebar({active,onNav,onHelp}){
   const items=[{id:"checkin_auto",label:"CheckIn Auto",icon:"car"},{id:"checkin_peaton",label:"CheckIn Peatón",icon:"person"},{id:"autorizaciones",label:"Autorizaciones",icon:"shield"},{id:"checkout",label:"Check Out",icon:"checkout"},{id:"semaforizacion",label:"Semaforización",icon:"traffic"}];
   const[hov,setHov]=useState(null);
   return(
     <div style={{width:133,height:"100vh",padding:"0 2px",flexShrink:0,zIndex:10,position:"sticky",top:0}}>
       <div style={{width:"100%",height:"100vh",background:"#F8FAFC",borderRadius:22,border:"1px solid #D9D9D9",display:"flex",flexDirection:"column",alignItems:"center",padding:"36px 0 20px"}}>
         <div style={{marginBottom:24}}><img src="assets/Kigo_Icon.png" width={40} height={40} alt="Kigo" style={{width:40,height:40,objectFit:"contain"}} onError={e=>{e.currentTarget.style.display="none";}}/></div>
-        <nav style={{display:"flex",flexDirection:"column",gap:2,width:"100%",padding:"0 6px",flex:1}} role="navigation" aria-label="Navegación principal">
+        <nav onKeyDown={e=>{if(e.key!=="ArrowDown"&&e.key!=="ArrowUp")return;const b=[...e.currentTarget.querySelectorAll("button")],k=b.indexOf(document.activeElement);if(k<0)return;e.preventDefault();b[(k+(e.key==="ArrowDown"?1:-1)+b.length)%b.length].focus();}} style={{display:"flex",flexDirection:"column",gap:2,width:"100%",padding:"0 6px",flex:1}} role="navigation" aria-label="Navegación principal">
           {items.map(it=>{const isA=active===it.id,isH=hov===it.id;return(
             <button key={it.id} onClick={()=>onNav(it.id)} aria-current={isA?"page":undefined} onMouseEnter={()=>setHov(it.id)} onMouseLeave={()=>setHov(null)}
               style={{display:"flex",flexDirection:"column",alignItems:"center",gap:7,padding:"12px 6px",borderRadius:12,border:"none",cursor:"pointer",background:isA?"rgba(15,23,42,0.045)":isH?"rgba(15,23,42,0.04)":"transparent",position:"relative",transition:"all .2s ease-out"}}>
@@ -279,6 +281,10 @@ function Sidebar({active,onNav}){
             </button>
           );})}
         </nav>
+        <button onClick={onHelp} aria-label="Atajos de teclado (F12)" className="tr" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,padding:"8px 4px",border:"none",cursor:"pointer",background:"transparent",width:101,marginBottom:8,borderRadius:8}}>
+          <span style={{color:"#525252"}}><I n="keyboard" s={18} sw={1.6}/></span>
+          <span style={{fontSize:10,fontWeight:600,color:"#525252"}}>Atajos · F12</span>
+        </button>
         <button onMouseEnter={e=>e.currentTarget.style.background="rgba(220,38,38,0.06)"} onMouseLeave={e=>e.currentTarget.style.background="#FFF1F2"}
           style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,padding:"10px 4px",border:"none",cursor:"pointer",background:"#FFF1F2",borderRadius:8,marginTop:"auto",width:101,transition:"background .15s"}}>
           <span style={{color:T.danger}}><I n="logout" s={18} sw={1.6}/></span>
@@ -468,24 +474,21 @@ function NameInput({value,onChange,plate,disabled,req,need}){
   );
 }
 
-function Counter({value,onChange,disabled,label="Personas que ingresan"}){
+function Counter({value,onChange,disabled,label="Ocupantes"}){
   const[txt,setTxt]=useState(String(value));
-  React.useEffect(()=>{setTxt(String(value));},[value]);
   const[f,setF]=useState(false);
+  React.useEffect(()=>{setTxt(String(value));},[value]);
   const set=n=>{const v=Math.min(99,Math.max(1,n));onChange(v);setTxt(String(v));};
-  const atMin=(parseInt(txt,10)||1)<=1;
-  const btn={width:44,flexShrink:0,height:"100%",border:"none",background:"transparent",cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#525252",fontFamily:"inherit"};
   const bg=disabled?T.secondary:"#fff";
-  return(<div data-fld="1" style={{...fbox({act:f,bc:f?"#FF6900":"#767676",bg,cursor:"default"}),padding:0,opacity:disabled?.7:1,width:"100%"}}>
-    <button type="button" aria-label="Menos personas" onClick={()=>!disabled&&set((parseInt(txt,10)||1)-1)} disabled={disabled||atMin} style={{...btn,justifyContent:"flex-start",paddingLeft:f?7.1:8.5,opacity:atMin&&!disabled?.4:1,cursor:(disabled||atMin)?"not-allowed":"pointer"}}><I n="minus" s={16} c="#525252" sw={2}/></button>
-    <div style={{flex:1,minWidth:0,height:"100%",position:"static"}}>
+  return(<div data-fld="1" style={{...fbox({act:f,bc:f?"#FF6900":"#767676",bg,cursor:disabled?"not-allowed":"text"}),opacity:disabled?.7:1,width:"100%"}}>
+    <div style={fcell}>
       <FL label={label} req up act={f} bg={bg}/>
       <input inputMode="numeric" pattern="[0-9]*" aria-label={label} value={txt} disabled={disabled}
         onChange={e=>{const d=e.target.value.replace(/\D/g,"").slice(0,2);setTxt(d);if(d!==""&&parseInt(d,10)>0)onChange(parseInt(d,10));}}
         onFocus={()=>setF(true)} onBlur={()=>{setF(false);const n=parseInt(txt,10);set(isNaN(n)||n<1?1:n);}}
-        style={{width:"100%",height:"100%",border:"none",outline:"none",background:"transparent",textAlign:"center",fontSize:14,fontWeight:600,color:"#525252",fontFamily:"inherit",padding:0}}/>
+        onKeyDown={e=>{if(e.key==="ArrowUp"){e.preventDefault();set((parseInt(txt,10)||0)+1);}else if(e.key==="ArrowDown"){e.preventDefault();set((parseInt(txt,10)||2)-1);}}}
+        style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
     </div>
-    <button type="button" aria-label="Más personas" onClick={()=>!disabled&&set((parseInt(txt,10)||0)+1)} disabled={disabled} style={{...btn,justifyContent:"flex-end",paddingRight:f?7.1:8.5}}><I n="plus" s={16} c="#525252" sw={2}/></button>
   </div>);
 }
 
@@ -644,11 +647,13 @@ function Evidence({hasPhotos,disabled,fixedH}){
   const[retaken,setRetaken]=useState([false,false,false]);
   const[tap,setTap]=useState(-1);
 
-  const handleRetake=(i)=>{
-    const r=[...retaken];r[i]=true;setRetaken(r);
-    setTimeout(()=>{const r2=[...retaken];r2[i]=false;setRetaken(r2);},800);
-  };
-
+  const retakeMany=(idx)=>{setRetaken(prev=>prev.map((v,k)=>idx.includes(k)?true:v));setTimeout(()=>setRetaken(prev=>prev.map((v,k)=>idx.includes(k)?false:v)),800);};
+  const handleRetake=(i)=>retakeMany([i]);
+  React.useEffect(()=>{
+    if(!hasPhotos||disabled)return;
+    const h=(e)=>{if(e.detail===-1)retakeMany([0,1,2]);else retakeMany([e.detail]);};
+    window.addEventListener("kigo-foto",h);return()=>window.removeEventListener("kigo-foto",h);
+  },[hasPhotos,disabled]);
   return(
     <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:"0 1 auto",minHeight:0,marginTop:"auto",display:"flex",flexDirection:"column"}} data-evid={fixedH?undefined:"1"}>
       <SH t="Evidencia" bg={hasPhotos?undefined:"#E7E5E4"}/>
@@ -720,8 +725,8 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
   return(
     <div style={{opacity:dis?.55:1,transition:"opacity .3s",display:"flex",flexDirection:"column",flex:1,minHeight:0}}>
       {/* ── DATOS DEL AUTO ── */}
-      <SH t="Datos del auto"/>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"var(--g,12px)",marginBottom:"calc(var(--g,12px)*.7)"}}>
+      <SH t="Datos del Auto"/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"var(--g,12px)",marginBottom:"var(--g,12px)"}}>
         <Fd label="Marca" value={brand} req need={!dis} disabled={dis} valueNode={brand?<BrandValue name={brand}/>:null}
           dropdownItems={BRANDS} dropdownSearchable dropdownTitle="Marca"
           onDropdownSelect={b=>{setBrand(b.name);setModel("");}}
@@ -733,6 +738,8 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
           renderDropdownItem={m=>(<span style={{fontWeight:500}}>{m.name}</span>)}
         />
         <ColorPicker value={color} onSelect={setColor} disabled={dis} need={!dis}/>
+        </div>
+      <div style={{marginBottom:"calc(var(--g,12px)*.7)"}}>
         <NameInput value={name} onChange={e=>setName(e.target.value)} plate={plate} disabled={dis} req need={!dis}/>
       </div>
       {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
@@ -740,7 +747,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
       <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
       {/* ── DATOS DE LA VISITA ── */}
-      <SH t="Datos de la visita"/>
+      <SH t="Datos de la Visita"/>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"var(--g,12px)",marginBottom:"var(--g,12px)"}}>
         <Fd label="Tipo de visita" value={visitType} req need={!dis} disabled={dis}
           dropdownItems={(colono?["Colono",...VISIT_TYPES]:VISIT_TYPES).map(v=>({name:v}))}
@@ -752,7 +759,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"var(--g,12px)",marginBottom:"var(--g,12px)"}}>
         <Counter value={persons} onChange={setPersons} disabled={dis}/>
-        <Fd label="Marbete asignado (opcional)" value="" editable disabled={dis}/>
+        <Fd label="Código" value="" editable disabled={dis}/>
       </div>
       <div style={{marginBottom:"var(--sg,24px)"}}>
         <Fd label="Comentarios (opcional)" value="" editable tall disabled={dis}/>
@@ -967,6 +974,7 @@ function CheckInAuto(){
   const rememberName=()=>{const k=(plate||"").toUpperCase(),n=(name||"").trim();if(!k||!n)return;NAME_HISTORY[k]=[n,...(NAME_HISTORY[k]||[]).filter(x=>x!==n)];};
   const handleRegister=()=>{
     if(phase!=="result")return;
+    if(INSIDE.has(plate)){showToast("Registro duplicado: este vehículo ya está dentro del fraccionamiento");return;}
     if(domRestricted&&!isColono){
       if(RULE_MODE==="confirmar"){setConfirm("opt");return;}
       if(houseBlocked)return;
@@ -974,6 +982,7 @@ function CheckInAuto(){
     }
     rememberName();setPhase("registered");
   };
+  React.useEffect(()=>{if(phase==="registered"&&plate)INSIDE.add(plate);},[phase]);
   const handleOpenBarrier=()=>{rememberName();showToast("Pluma abierta · Acceso registrado");setConfirm(null);setAuthInfo(null);setPlate("");setPhase("idle");setResult(null);setContentDisabled(false);setBrand("");setModel("");setColor("");setVisitType("");setCluster("");setStreet("");setHouse("");setName("");setIsCustomBrand(false);setTimeout(()=>ref.current?.focus(),100);};
 
   const st=result?SB[result.status]:null;
@@ -1050,7 +1059,11 @@ function CheckInAuto(){
   const domPending=phase==="result"&&!dis&&domScroll.needs&&!domScroll.atEnd&&!rcRead;
   const canRegister=(isColono||(allRequiredFilled&&!houseBlocked))&&!domPending;
   React.useEffect(()=>{
-    const h=(e)=>{if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){if(phase==="registered"){e.preventDefault();handleOpenBarrier();}else if(phase==="result"&&ctaRef.current){e.preventDefault();ctaRef.current();}}};
+    const h=(e)=>{
+      if(e.key==="F5"){e.preventDefault();if(phase==="result"&&ctaRef.current)ctaRef.current();return;}
+      if(e.key==="F11"&&phase==="registered"){e.preventDefault();handleOpenBarrier();return;}
+      if(/^F[1-4]$/.test(e.key)&&showResult&&!dis){e.preventDefault();window.dispatchEvent(new CustomEvent("kigo-foto",{detail:e.key==="F4"?-1:parseInt(e.key[1],10)-1}));return;}
+      if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){if(phase==="registered"){e.preventDefault();handleOpenBarrier();}else if(phase==="result"&&ctaRef.current){e.preventDefault();ctaRef.current();}}};
     window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);
   });
   const missing=[!brand&&"Marca",!model&&"Modelo",!color&&"Color",!name&&"Nombre del propietario",!visitType&&"Tipo de visita",!(cluster&&street&&house)&&"Ubicación"].filter(Boolean);
@@ -1139,6 +1152,13 @@ function CheckInAuto(){
               style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:dis&&plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(dis&&plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
               <I n="search" s={20} c={dis&&plate.trim()?"#FAFAFA":DIS_BTN.color}/> Buscar
             </button>
+            {showResult&&isNotification&&!dis&&(<div className="asr" role="status" style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:10,minHeight:"var(--plh,56px)",boxSizing:"border-box",padding:"6px 14px",borderRadius:12,background:"#FEF2F2",border:"1px solid #FCA5A5"}}>
+              <span style={{flexShrink:0,display:"inline-flex"}}><I n="alert-circle" s={20} c="#B91C1B" sw={2}/></span>
+              <span style={{display:"flex",flexDirection:"column",minWidth:0}}>
+                <span style={{fontSize:13,fontWeight:700,color:"#991B1B",lineHeight:"18px"}}>Vehículo con sanciones pendientes</span>
+                {result.sem?.motivo&&result.sem.motivo!=="—"&&<span style={{fontSize:12,color:"#B91C1B",lineHeight:"16px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{result.sem.motivo}</span>}
+              </span>
+            </div>)}
           </div>
           </div>
 
@@ -1563,13 +1583,48 @@ function GlobalImageModal({src,label,onClose}){
   );
 }
 
+function HelpDialog({onClose}){
+  React.useEffect(()=>{const h=(e)=>{if(e.key==="Enter"||e.key==="Escape"){e.preventDefault();onClose();}};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);},[]);
+  const K=({k,d})=>(<div style={{display:"flex",gap:14,alignItems:"flex-start",padding:"6px 0"}}>
+    <span style={{display:"inline-flex",gap:4,flexShrink:0,width:110}}>{k.map(x=>(<kbd key={x} style={{minWidth:28,height:24,padding:"0 8px",boxSizing:"border-box",display:"inline-flex",alignItems:"center",justifyContent:"center",borderRadius:6,border:"1px solid #D4D4D4",borderBottomWidth:2,background:"#FAFAFA",fontFamily:"inherit",fontSize:12,fontWeight:600,color:"#262626"}}>{x}</kbd>))}</span>
+    <span style={{fontSize:14,lineHeight:"22px",color:"#404040"}}>{d}</span></div>);
+  const T2=({t})=>(<div style={{fontSize:12,fontWeight:700,color:"#525252",letterSpacing:".04em",textTransform:"uppercase",margin:"14px 0 4px"}}>{t}</div>);
+  return(<div role="dialog" aria-modal="true" aria-label="Navegación por teclado" onClick={onClose} style={{position:"fixed",inset:0,zIndex:300,background:"rgba(15,23,42,.45)",display:"flex",alignItems:"center",justifyContent:"center",padding:24}}>
+    <div onClick={e=>e.stopPropagation()} style={{width:"min(560px,100%)",maxHeight:"90vh",overflowY:"auto",background:"#fff",borderRadius:16,padding:"24px 28px 20px",boxShadow:"0 24px 64px rgba(15,23,42,.25)"}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}><span style={{color:"#525252"}}><I n="keyboard" s={22} sw={1.8}/></span><h2 style={{margin:0,fontSize:20,fontWeight:700,color:"#262626"}}>Navegación por teclado</h2></div>
+      <p style={{margin:"6px 0 0",fontSize:14,color:"#525252"}}>Puedes operar todo el registro sin usar el mouse.</p>
+      <T2 t="Moverse por el formulario"/>
+      <K k={["Tab"]} d="Avanzar al siguiente campo"/>
+      <K k={["Shift","Tab"]} d="Regresar al campo anterior"/>
+      <K k={["↑","↓"]} d="Navegar las opciones de un selector (Marca, Modelo, Color, Ubicación, etc.) o sumar y restar en Ocupantes"/>
+      <K k={["Enter"]} d="En Placa: busca. En un selector abierto: confirma la opción resaltada"/>
+      <K k={["Esc"]} d="Cierra un selector sin confirmar"/>
+      <T2 t="Atajos globales"/>
+      <K k={["F1"]} d="Tomar fotografía 1"/><K k={["F2"]} d="Tomar fotografía 2"/><K k={["F3"]} d="Tomar fotografía 3"/>
+      <K k={["F4"]} d="Tomar todas las fotografías"/>
+      <K k={["F5"]} d="Registrar acceso"/>
+      <K k={["F11"]} d="Abrir pluma (tras registrar)"/>
+      <K k={["F6"]} d="Ir a la barra lateral / volver al formulario"/>
+      <K k={["F12"]} d="Mostrar esta ayuda"/>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,marginTop:18}}>
+        <span style={{fontSize:12,color:"#737373"}}>Presiona Enter o Esc para cerrar</span>
+        <button onClick={onClose} autoFocus style={{height:40,padding:"0 22px",border:"none",borderRadius:8,background:T.kigo500,color:"#fff",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:"inherit"}}>Entendido</button>
+      </div>
+    </div></div>);
+}
+
 function App(){
   const[page,setPage]=useState("checkin_auto");
+  const[help,setHelp]=useState(false);
+  React.useEffect(()=>{const h=(e)=>{
+    if(e.key==="F12"){e.preventDefault();setHelp(v=>!v);}
+    else if(e.key==="F6"){e.preventDefault();const nav=document.querySelector('nav[aria-label="Navegación principal"]');if(nav&&nav.contains(document.activeElement)){const el=document.querySelector('#main-content input');if(el)el.focus();}else if(nav){const a=nav.querySelector('[aria-current="page"]')||nav.querySelector("button");if(a)a.focus();}}
+  };window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);},[]);
   const[modalImg,setModalImg]=useState(null);
   const[,setTick]=useState(0);
   const modalCtx={show:(src,label)=>setModalImg({src,label}),hide:()=>setModalImg(null)};
   const r=()=>{switch(page){case"checkin_auto":return<CheckInAuto/>;case"checkin_peaton":return<PH title="CheckIn Peatón" desc="Registra el acceso peatonal." icon="person"/>;case"autorizaciones":return<PH title="Autorizaciones" desc="Gestiona autorizaciones pendientes." icon="shield"/>;case"checkout":return<PH title="Check Out" desc="Registra la salida de vehículos." icon="checkout"/>;case"semaforizacion":return<SemaforizacionPage/>;default:return<CheckInAuto/>;}};
-  return(<ModalCtx.Provider value={modalCtx}><div style={{display:"flex",height:"100vh",background:page==="semaforizacion"?"#fff":T.umbral50,overflow:"hidden"}}><Sidebar active={page} onNav={setPage}/><main id="main-content" style={{flex:1,padding:"24px 40px 48px",minWidth:0,overflowY:page==="checkin_auto"?"hidden":"auto",background:page==="semaforizacion"?"#fff":T.umbral50,position:"relative",height:"100vh"}}>{r()}</main></div><CopyToggle onChange={()=>setTick(x=>x+1)}/>{modalImg&&<GlobalImageModal src={modalImg.src} label={modalImg.label} onClose={()=>setModalImg(null)}/>}</ModalCtx.Provider>);
+  return(<ModalCtx.Provider value={modalCtx}><div style={{display:"flex",height:"100vh",background:page==="semaforizacion"?"#fff":T.umbral50,overflow:"hidden"}}><Sidebar active={page} onNav={setPage} onHelp={()=>setHelp(true)}/><main id="main-content" style={{flex:1,padding:"24px 40px 48px",minWidth:0,overflowY:page==="checkin_auto"?"hidden":"auto",background:page==="semaforizacion"?"#fff":T.umbral50,position:"relative",height:"100vh"}}>{r()}</main></div><CopyToggle onChange={()=>setTick(x=>x+1)}/>{modalImg&&<GlobalImageModal src={modalImg.src} label={modalImg.label} onClose={()=>setModalImg(null)}/>}{help&&<HelpDialog onClose={()=>setHelp(false)}/>}</ModalCtx.Provider>);
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
