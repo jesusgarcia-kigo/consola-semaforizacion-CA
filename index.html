@@ -650,7 +650,7 @@ function Evidence({hasPhotos,disabled,fixedH}){
   };
 
   return(
-    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:"0 1 auto",minHeight:0,marginTop:"auto",display:"flex",flexDirection:"column"}}>
+    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:"0 1 auto",minHeight:0,marginTop:"auto",display:"flex",flexDirection:"column"}} data-evid={fixedH?undefined:"1"}>
       <SH t="Evidencia" bg={hasPhotos?undefined:"#E7E5E4"}/>
       <div style={{display:"flex",gap:fixedH?12:"var(--g,12px)",height:"var(--ev,140px)",minHeight:72,flexShrink:1}}>
         {labels.map((lbl,i)=>{
@@ -737,7 +737,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
       </div>
       {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
       {!kigoData&&<div style={{height:25,marginBottom:"var(--sg,24px)"}}/>}
-      <div aria-hidden="true" style={{flex:"1 1 0",minHeight:0,maxHeight:40}}/>
+      <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
       {/* ── DATOS DE LA VISITA ── */}
       <SH t="Datos de la visita"/>
@@ -757,7 +757,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
       <div style={{marginBottom:"var(--sg,24px)"}}>
         <Fd label="Comentarios (opcional)" value="" editable tall disabled={dis}/>
       </div>
-      <div aria-hidden="true" style={{flex:"1 1 0",minHeight:0,maxHeight:40}}/>
+      <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
       {/* ── EVIDENCIA ── */}
       <Evidence hasPhotos={hasPhotos} disabled={dis}/>
@@ -992,6 +992,26 @@ function CheckInAuto(){
   const searchedRef=useRef("");
   const[nudge,setNudge]=useState(0);
   const[fit,setFit]=useState(1);
+  const colRef=useRef(null);
+  /* Los componentes crecen juntos (factor --k) hasta absorber el alto libre, con tope estético: 1.22 */
+  React.useLayoutEffect(()=>{
+    const col=colRef.current;if(!col)return;
+    const fill=()=>{
+      let k=1;col.style.setProperty("--k","1");
+      for(let i=0;i<6;i++){
+        const H=col.clientHeight;let F=0;
+        col.querySelectorAll("[data-spacer]").forEach(e=>{F+=e.offsetHeight;});
+        const ev=col.querySelector("[data-evid]");if(ev)F+=parseFloat(getComputedStyle(ev).marginTop)||0;
+        if(F<6||H<=F)break;
+        const nk=Math.min(1.22,k*(1+0.9*F/(H-F)));
+        if(Math.abs(nk-k)<.003)break;
+        k=nk;col.style.setProperty("--k",String(k));
+      }
+    };
+    fill();
+    window.addEventListener("resize",fill);
+    return()=>window.removeEventListener("resize",fill);
+  });
   React.useEffect(()=>{const f=()=>setFit(Math.max(.72,Math.min(1,window.innerHeight/790,(window.innerWidth-133)/1000)));f();window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
   const checkRc=()=>{
     const el=rcRef.current;
@@ -1101,7 +1121,7 @@ function CheckInAuto(){
 
           <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1,minHeight:0}}>
             {/* ── LEFT (70%) ── */}
-            <div style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column"}}>
+            <div ref={colRef} style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(calc(clamp(36px,5.2vh,44px) * var(--k,1)),2px)","--sg":"round(calc(clamp(12px,2.4vh,24px) * var(--k,1)),4px)","--g":"round(calc(clamp(6px,1.3vh,12px) * var(--k,1)),2px)","--ev":"round(calc(clamp(88px,13vh,150px) * var(--k,1)),2px)","--plh":"round(calc(clamp(48px,6.4vh,56px) * var(--k,1)),2px)"}}>
           {/* Placa */}
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
