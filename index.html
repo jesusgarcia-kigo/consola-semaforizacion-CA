@@ -107,9 +107,9 @@ const COLORS=[
   {name:"Blanco",hex:"#F5F5F5"},{name:"Negro",hex:"#1F2937"},{name:"Gris",hex:"#6B7280"},
   {name:"Plata",hex:"#9CA3AF"},{name:"Rojo",hex:"#DC2626"},{name:"Azul",hex:"#2563EB"},
   {name:"Azul Marino",hex:"#1E3A5F"},{name:"Verde",hex:"#16A34A"},{name:"Amarillo",hex:"#EAB308"},
-  {name:"Naranja",hex:"#EA580C"},{name:"Café",hex:"#78350F"},{name:"Beige",hex:"#D4B896"},
+  {name:"Naranja",hex:"#EA580C"},{name:"Café",hex:"#78350F"},{name:"Beige",hex:"#D4B896"},{name:"Crema",hex:"#F3E7C3"},
   {name:"Dorado",hex:"#B8860B"},{name:"Vino",hex:"#7F1D1D"},{name:"Rosa",hex:"#EC4899"},
-];
+].sort((a,b)=>a.name.localeCompare(b.name,"es"));
 /* ═══ PLACAS (fuente única: Registrar Acceso y Semaforización leen y escriben aquí) ═══
    [placa, estado, motivo, fecha de asignación, titular, clúster, calle, casa, marca, modelo, color] */
 const FLEET=[
@@ -297,8 +297,11 @@ function Sidebar({active,onNav,onHelp}){
 
 /* ═══ SECTION HEADER — Accessible, prominent ═══ */
 function SH({t,bg}){
-  return(<div style={{marginBottom:"clamp(8px,1.6vh,14px)"}}><span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",height:30,padding:"0 22px",borderRadius:20,background:bg||"#F5F5F4",fontSize:14,fontWeight:600,color:"#262626"}}>{t}</span></div>);
+  return(<div style={{marginBottom:"clamp(8px,1.6vh,14px)"}}><span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",height:30,padding:"0 22px",borderRadius:20,background:bg||"#F5F5F4",fontSize:Z(14),fontWeight:600,color:"#262626"}}>{t}</span></div>);
 }
+
+/* Tamaño de letra proporcional: --fz crece con los componentes (--k) y compensa pantallas chicas */
+const Z=n=>`calc(${n}px * var(--fz,1))`;
 
 /* ═══ MARCA: logo + nombre ═══ */
 function BrandMark({name,s=24,w,left}){
@@ -306,15 +309,15 @@ function BrandMark({name,s=24,w,left}){
   const[bad,setBad]=useState(false);
   const slot={width:w||Math.round(s*2.2),height:s,display:"inline-flex",alignItems:"center",justifyContent:left?"flex-start":"center",flexShrink:0};
   if(b.img&&!bad)return(<span style={slot}><img src={b.img} alt="" onError={()=>setBad(true)} style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",objectPosition:left?"left center":"center",display:"block"}}/></span>);
-  return(<span style={{...slot,fontSize:13,fontWeight:600,color:"#737373",letterSpacing:".04em"}}>{b.logo||(name||"?").slice(0,2).toUpperCase()}</span>);
+  return(<span style={{...slot,fontSize:Z(13),fontWeight:600,color:"#737373",letterSpacing:".04em"}}>{b.logo||(name||"?").slice(0,2).toUpperCase()}</span>);
 }
-const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={24} w={32} left/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
+const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={24} w={36} left/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
 
 /* ═══ ETIQUETA FLOTANTE: placeholder dentro del campo; al enfocar o con valor sube como título ═══ */
-const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:(up||leftDown===undefined?8:leftDown)-(((bw||((act||need)?2.4:1)))-1),top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#DC2626",marginLeft:3}}>*</span>}</span>);
+const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:(up||leftDown===undefined?8:leftDown)-(((bw||((act||need)?2.4:1)))-1),top:up?Z(-9):(topDown!==undefined?topDown:"calc(50% - 8px * var(--fz,1))"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent calc(9px * var(--fz,1) - ${(bw||((act||need)?2.4:1))}px),${bg||"#fff"} calc(9px * var(--fz,1) - ${(bw||((act||need)?2.4:1))}px))`:"transparent",fontSize:Z(up?12:14),fontWeight:up?600:500,lineHeight:Z(16),color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#DC2626",marginLeft:3}}>*</span>}</span>);
 const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:o.act?"0 10.6px":"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
 const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center"};
-const fval={fontSize:14,fontWeight:600,lineHeight:"20px",color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%",position:"relative",top:-0.5};
+const fval={fontSize:Z(14),fontWeight:600,lineHeight:Z(20),color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%",position:"relative",top:-0.5};
 
 /* ═══ SMART DROPDOWN ═══ */
 function SmartDropdown({open,onClose,items,onSelect,renderItem,searchable,title,allowCreate,up}){
@@ -335,14 +338,14 @@ function SmartDropdown({open,onClose,items,onSelect,renderItem,searchable,title,
   return(<>
     <div onClick={onClose} style={{position:"fixed",inset:0,zIndex:100}}/>
     <div ref={wrapRef} tabIndex={-1} onKeyDown={onKey} className="au" style={{outline:"none",position:"absolute",top:up?"auto":"100%",bottom:up?"100%":"auto",left:0,right:0,marginTop:up?0:4,marginBottom:up?4:0,background:T.card,borderRadius:14,border:`1.5px solid ${T.border}`,boxShadow:"0 12px 40px rgba(15,23,42,0.12)",zIndex:101,maxHeight:280,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-      {title&&<div style={{padding:"10px 14px 6px",fontSize:12,fontWeight:600,color:T.muted}}>{title}</div>}
-      {searchable&&<div style={{padding:"6px 10px",borderBottom:`1px solid ${T.border}`}}><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar..." style={{width:"100%",border:"none",outline:"none",fontSize:13,color:T.slate900,background:"transparent",fontFamily:"inherit",padding:"6px 4px"}}/></div>}
+      {title&&<div style={{padding:"10px 14px 6px",fontSize:Z(12),fontWeight:600,color:T.muted}}>{title}</div>}
+      {searchable&&<div style={{padding:"6px 10px",borderBottom:`1px solid ${T.border}`}}><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar..." style={{width:"100%",border:"none",outline:"none",fontSize:Z(13),color:T.slate900,background:"transparent",fontFamily:"inherit",padding:"6px 4px"}}/></div>}
       <div className="ovc" style={{overflowY:"auto",flex:1}}>
         {filtered.map((item,i)=>(
           <div key={i} data-row="1" onClick={()=>{onSelect(item);onClose();setQ("");}} className="tr"
             onMouseEnter={e=>e.currentTarget.style.background=(item&&item.restr)?"#FDE8EA":T.kigo50}
             onMouseLeave={e=>e.currentTarget.style.background=(item&&item.restr)?"#FEF2F2":"transparent"}
-            style={{background:(item&&item.restr)?"#FEF2F2":"transparent",padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:14,color:T.slate900,borderBottom:i<filtered.length-1?`1px solid ${T.border}15`:"none"}}>
+            style={{background:(item&&item.restr)?"#FEF2F2":"transparent",padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:Z(14),color:T.slate900,borderBottom:i<filtered.length-1?`1px solid ${T.border}15`:"none"}}>
             {renderItem?renderItem(item):(<span>{typeof item==="string"?item:item.name}</span>)}
           </div>
         ))}
@@ -350,12 +353,12 @@ function SmartDropdown({open,onClose,items,onSelect,renderItem,searchable,title,
           <div onClick={()=>{onSelect({name:q.trim(),custom:true});onClose();setQ("");}} className="tr"
             onMouseEnter={e=>e.currentTarget.style.background=T.kigo50}
             onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-            style={{padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:14,color:T.kigo500,fontWeight:600,borderTop:`1px solid ${T.border}`}}>
-            <span style={{width:28,height:28,borderRadius:7,background:T.kigo50,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>+</span>
+            style={{padding:"12px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:Z(14),color:T.kigo500,fontWeight:600,borderTop:`1px solid ${T.border}`}}>
+            <span style={{width:28,height:28,borderRadius:7,background:T.kigo50,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:Z(14),flexShrink:0}}>+</span>
             <span>Usar "<strong>{q.trim()}</strong>"</span>
           </div>
         )}
-        {filtered.length===0&&!showCreate&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:13,color:T.muted}}>Sin resultados</div>}
+        {filtered.length===0&&!showCreate&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:Z(13),color:T.muted}}>Sin resultados</div>}
       </div>
     </div>
   </>);
@@ -410,15 +413,15 @@ function ColorPicker({value,onSelect,disabled,need}){
     <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Color" onKeyDown={e=>{if(!disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);}else if(e.key==="Escape")setOpen(false);}} onClick={()=>!disabled&&setOpen(!open)}
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#404040":"#767676",bg,cursor:disabled?"not-allowed":"pointer"})}>
-        {sel&&<span style={{width:32,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"1px solid #767676":"none",boxSizing:"border-box",boxShadow:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"none":"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
+        {sel&&<span style={{width:36,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"1px solid #767676":"none",boxSizing:"border-box",boxShadow:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"none":"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
         <div style={fcell}><FL label="Color" req up={up} act={open} need={flag&&!open} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
         <I n="chevron" s={14} c="#525252"/>
       </div>
       {open&&!disabled&&<>
         <div onClick={()=>setOpen(false)} style={{position:"fixed",inset:0,zIndex:100}}/>
         <div className="au" style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:T.card,borderRadius:14,border:`1.5px solid ${T.border}`,boxShadow:"0 12px 40px rgba(15,23,42,0.12)",zIndex:101,overflow:"hidden"}}>
-          <div style={{padding:"10px 14px 6px",fontSize:12,fontWeight:600,color:T.muted}}>Color</div>
-          <div style={{padding:"6px 10px",borderBottom:`1px solid ${T.border}`}}><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar color..." style={{width:"100%",border:"none",outline:"none",fontSize:13,color:T.slate900,background:"transparent",padding:"6px 4px"}}/></div>
+          <div style={{padding:"10px 14px 6px",fontSize:Z(12),fontWeight:600,color:T.muted}}>Color</div>
+          <div style={{padding:"6px 10px",borderBottom:`1px solid ${T.border}`}}><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar color..." style={{width:"100%",border:"none",outline:"none",fontSize:Z(13),color:T.slate900,background:"transparent",padding:"6px 4px"}}/></div>
           <div className="ovc" style={{padding:10,display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:6,maxHeight:200,overflowY:"auto"}}>
             {filtered.map(c=>(
               <div key={c.name} onClick={()=>{onSelect(c.name);setOpen(false);setQ("");}} className="tr"
@@ -427,11 +430,11 @@ function ColorPicker({value,onSelect,disabled,need}){
                 title={c.name}
                 style={{display:"flex",flexDirection:"column",alignItems:"center",gap:4,padding:6,borderRadius:8,cursor:"pointer",background:value===c.name?T.kigo50:"transparent",border:value===c.name?`1.5px solid ${T.kigo500}`:"1.5px solid transparent"}}>
                 <span style={{width:28,height:28,borderRadius:"50%",background:c.hex,border:c.hex==="#F5F5F5"?`1px solid ${T.border}`:"none",boxShadow:"0 1px 3px rgba(0,0,0,0.1)"}}/>
-                <span style={{fontSize:9,fontWeight:600,color:T.slate900,textAlign:"center",lineHeight:1.1}}>{c.name}</span>
+                <span style={{fontSize:Z(9),fontWeight:600,color:T.slate900,textAlign:"center",lineHeight:1.1}}>{c.name}</span>
               </div>
             ))}
           </div>
-          {filtered.length===0&&<div style={{padding:"16px 14px",textAlign:"center",fontSize:13,color:T.muted}}>Sin resultados</div>}
+          {filtered.length===0&&<div style={{padding:"16px 14px",textAlign:"center",fontSize:Z(13),color:T.muted}}>Sin resultados</div>}
         </div>
       </>}
     </div>
@@ -452,19 +455,19 @@ function NameInput({value,onChange,plate,disabled,req,need}){
     <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
       <div className="tr" data-fld="1" data-need={flag?"1":undefined} style={fbox({act:f||flag,bc:f?"#FF6900":flag?"#404040":"#767676",bg})}>
         <div style={fcell}>
-          <FL label="Nombre del propietario" req={req} up={up} act={f} need={flag&&!f} bg={bg}/>
-          <input value={value||""} onChange={e=>{onChange(e);setShowSugg(true);}} onFocus={()=>{setF(true);if(history.length)setShowSugg(true);}} onBlur={()=>{setF(false);setTimeout(()=>setShowSugg(false),200);}} disabled={disabled} aria-label="Nombre del propietario"
+          <FL label="Nombre" req={req} up={up} act={f} need={flag&&!f} bg={bg}/>
+          <input value={value||""} onChange={e=>{onChange(e);setShowSugg(true);}} onFocus={()=>{setF(true);if(history.length)setShowSugg(true);}} onBlur={()=>{setF(false);setTimeout(()=>setShowSugg(false),200);}} disabled={disabled} aria-label="Nombre"
             style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
         </div>
       </div>
       {showSugg&&filtered.length>0&&!disabled&&(
         <div className="au" style={{position:"absolute",top:"100%",left:0,right:0,marginTop:4,background:T.card,borderRadius:12,border:`1.5px solid ${T.border}`,boxShadow:"0 8px 24px rgba(15,23,42,0.1)",zIndex:101,overflow:"hidden"}}>
-          <div style={{padding:"8px 14px 4px",fontSize:10,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".08em"}}>Registros previos</div>
+          <div style={{padding:"8px 14px 4px",fontSize:Z(10),fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".08em"}}>Registros previos</div>
           {filtered.map((n,i)=>(
             <div key={i} onMouseDown={()=>{onChange({target:{value:n}});setShowSugg(false);}} className="tr"
               onMouseEnter={e=>e.currentTarget.style.background=T.kigo50}
               onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-              style={{padding:"10px 14px",cursor:"pointer",fontSize:14,color:T.slate900,display:"flex",alignItems:"center",gap:8}}>
+              style={{padding:"10px 14px",cursor:"pointer",fontSize:Z(14),color:T.slate900,display:"flex",alignItems:"center",gap:8}}>
               <I n="person" s={14} c={T.muted}/>{n}
             </div>
           ))}
@@ -519,8 +522,8 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
   const Row=({onClick,children,restr})=>(<div onClick={onClick} className="tr lsrow"
     onMouseEnter={e=>e.currentTarget.style.background=restr?"#FDE8EA":T.kigo50}
     onMouseLeave={e=>e.currentTarget.style.background=restr?"#FEF2F2":"transparent"}
-    style={{background:restr?"#FEF2F2":"transparent",padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:14,color:T.slate900,borderBottom:`1px solid ${T.border}55`}}>{children}</div>);
-  const Pill=()=>(<span style={{marginLeft:"auto",display:"inline-flex",alignItems:"center",gap:5,padding:"3px 9px",borderRadius:999,background:"#fff",border:"1px solid #F3C6CB",fontSize:12,fontWeight:600,color:"#B91C2E",flexShrink:0}}><I n="lock" s={12} c="#B91C2E" sw={2.2}/>Restringida</span>);
+    style={{background:restr?"#FEF2F2":"transparent",padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",gap:10,fontSize:Z(14),color:T.slate900,borderBottom:`1px solid ${T.border}55`}}>{children}</div>);
+  const Pill=()=>(<span style={{marginLeft:"auto",display:"inline-flex",alignItems:"center",gap:5,padding:"3px 9px",borderRadius:999,background:"#fff",border:"1px solid #F3C6CB",fontSize:Z(12),fontWeight:600,color:"#B91C2E",flexShrink:0}}><I n="lock" s={12} c="#B91C2E" sw={2.2}/>Restringida</span>);
   const Chev=()=><span style={{marginLeft:"auto",display:"inline-flex"}}><I n="chevron" s={14} c={T.muted}/></span>;
   let body=null;
   if(toks.length){
@@ -528,32 +531,32 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
     ALL.forEach(x=>{const k=x.c+"|"+x.s;if(!seen[k]&&toks.every(t=>nrmTxt(x.c+" "+x.s).includes(t))){seen[k]=1;sts.push({c:x.c,s:x.s});}});
     const hs=ALL.filter(x=>toks.every(t=>nrmTxt(x.c+" "+x.s+" lote "+loteOf(x.s,x.h)+" "+loteOf(x.s,x.h).replace("-","")+" "+x.h).includes(t))).slice(0,40);
     body=(<>
-      {sts.slice(0,6).map(x=>(<Row key={x.c+x.s} onClick={()=>{setPath({c:x.c,s:x.s});setQ("");}}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:600,whiteSpace:"nowrap"}}>Calle {x.s}</span><span style={{color:T.muted,fontSize:13,whiteSpace:"nowrap"}}>Clúster {x.c} · {(HOUSES_BY_STREET[x.s]||[]).length} lotes</span><RestrCount n={countRestr(x.c,x.s)}/><Chev/></Row>))}
-      {hs.map(x=>{const r=isHouseRestr(x.c,x.s,x.h);return(<Row key={x.c+x.s+x.h} restr={r} onClick={()=>pick(x.c,x.s,x.h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Lote {loteOf(x.s,x.h)}</span><span style={{color:T.muted,fontSize:13}}>{x.s} · Clúster {x.c}</span>{r&&<Pill/>}</Row>);})}
-      {!sts.length&&!hs.length&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:13,color:T.muted}}>Sin resultados. Prueba con calle, lote o clúster.</div>}
+      {sts.slice(0,6).map(x=>(<Row key={x.c+x.s} onClick={()=>{setPath({c:x.c,s:x.s});setQ("");}}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:600,whiteSpace:"nowrap"}}>Calle {x.s}</span><span style={{color:T.muted,fontSize:Z(13),whiteSpace:"nowrap"}}>Clúster {x.c} · {(HOUSES_BY_STREET[x.s]||[]).length} lotes</span><RestrCount n={countRestr(x.c,x.s)}/><Chev/></Row>))}
+      {hs.map(x=>{const r=isHouseRestr(x.c,x.s,x.h);return(<Row key={x.c+x.s+x.h} restr={r} onClick={()=>pick(x.c,x.s,x.h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Lote {loteOf(x.s,x.h)}</span><span style={{color:T.muted,fontSize:Z(13)}}>{x.s} · Clúster {x.c}</span>{r&&<Pill/>}</Row>);})}
+      {!sts.length&&!hs.length&&<div style={{padding:"20px 14px",textAlign:"center",fontSize:Z(13),color:T.muted}}>Sin resultados. Prueba con calle, lote o clúster.</div>}
     </>);
   }else if(!path.c){
     body=CLUSTERS.map(c=>(<Row key={c} onClick={()=>setPath({c,s:""})}><I n="pin" s={14} c={T.muted}/><span style={{fontWeight:500}}>Clúster {c}</span><RestrCount n={countRestr(c)}/><Chev/></Row>));
   }else if(!path.s){
-    body=(STREETS[path.c]||[]).map(st=>(<Row key={st} onClick={()=>setPath({c:path.c,s:st})}><span style={{fontWeight:500}}>Calle {st}</span><span style={{color:T.muted,fontSize:13}}>{(HOUSES_BY_STREET[st]||[]).length} lotes</span><RestrCount n={countRestr(path.c,st)}/><Chev/></Row>));
+    body=(STREETS[path.c]||[]).map(st=>(<Row key={st} onClick={()=>setPath({c:path.c,s:st})}><span style={{fontWeight:500}}>Calle {st}</span><span style={{color:T.muted,fontSize:Z(13)}}>{(HOUSES_BY_STREET[st]||[]).length} lotes</span><RestrCount n={countRestr(path.c,st)}/><Chev/></Row>));
   }else{
     body=(HOUSES_BY_STREET[path.s]||[]).map(h=>{const r=isHouseRestr(path.c,path.s,h);return(<Row key={h} restr={r} onClick={()=>pick(path.c,path.s,h)}><span className="mono" style={{fontWeight:600,color:r?"#7F1D1D":T.slate900}}>Lote {loteOf(path.s,h)}</span>{r&&<Pill/>}</Row>);});
   }
   const crumb=(!toks.length&&path.c)?(<div style={{display:"flex",gap:6,alignItems:"center",padding:"8px 10px",borderBottom:`1px solid ${T.border}`,flexWrap:"wrap"}}>
-    <button type="button" onClick={()=>setPath({c:"",s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.border}`,background:T.card,fontSize:12,fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Todos</button>
-    <button type="button" onClick={()=>setPath({c:path.c,s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${path.s?T.border:T.kigo500}`,background:path.s?T.card:T.kigo50,fontSize:12,fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Clúster {path.c}</button>
-    {path.s&&<span style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.kigo500}`,background:T.kigo50,fontSize:12,fontWeight:600,color:T.slate900}}>Calle {path.s}</span>}
+    <button type="button" onClick={()=>setPath({c:"",s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.border}`,background:T.card,fontSize:Z(12),fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Todos</button>
+    <button type="button" onClick={()=>setPath({c:path.c,s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${path.s?T.border:T.kigo500}`,background:path.s?T.card:T.kigo50,fontSize:Z(12),fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Clúster {path.c}</button>
+    {path.s&&<span style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.kigo500}`,background:T.kigo50,fontSize:Z(12),fontWeight:600,color:T.slate900}}>Calle {path.s}</span>}
   </div>):null;
   const val=has?(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}>{restricted&&<I n="lock" s={16} c="#B91C1B" sw={2}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Lote {loteOf(street,house)} · {street} · Clúster {cluster}</span></span>):"";
   return(
     <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
-      <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Buscar ubicación" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
+      <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Calle/Edificio/Piso" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#404040":"#767676",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"not-allowed":"text"})}>
         <span aria-hidden="true" style={{display:"inline-flex",flexShrink:0,overflow:"hidden",width:(has&&restricted&&!open)?0:16,marginRight:(has&&restricted&&!open)?-8:0,opacity:(has&&restricted&&!open)?0:1,transition:"width .22s ease,margin .22s ease,opacity .18s ease"}}><I n="search" s={16} c="#525252"/></span>
         <div style={fcell}>
-          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={32} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
+          <FL label="Calle/Edificio/Piso" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={32} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
-            ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Buscar ubicación" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
+            ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Calle/Edificio/Piso" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
             :<span style={{...fval,display:"flex",alignItems:"center"}}>{val}</span>}
         </div>
         {has&&!disabled&&<button type="button" aria-label="Quitar ubicación" onClick={e=>{e.stopPropagation();setLoc("","","");setQ("");setPath({c:"",s:""});}} style={{width:24,height:24,marginRight:-5,borderRadius:6,border:"none",background:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><I n="x" s={14} c="#525252"/></button>}
@@ -561,7 +564,7 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
       {open&&!disabled&&<>
         <div onClick={()=>{setOpen(false);setQ("");}} style={{position:"fixed",inset:0,zIndex:100}}/>
         <div className="au" style={{position:"absolute",top:"100%",right:0,width:"max(100%,400px)",marginTop:4,background:T.card,borderRadius:14,border:`1.5px solid ${T.border}`,boxShadow:"0 12px 40px rgba(15,23,42,0.12)",zIndex:101,maxHeight:340,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-          <div style={{padding:"10px 14px 6px",fontSize:12,fontWeight:600,color:T.muted}}>{toks.length?"Resultados":path.s?`Lotes de ${path.s}`:path.c?`Calles del clúster ${path.c}`:"Clústeres"}</div>
+          <div style={{padding:"10px 14px 6px",fontSize:Z(12),fontWeight:600,color:T.muted}}>{toks.length?"Resultados":path.s?`Lotes de ${path.s}`:path.c?`Calles del clúster ${path.c}`:"Clústeres"}</div>
           {crumb}
           <div ref={listRef} className="ovc" style={{overflowY:"auto",flex:1}}>{body}</div>
         </div>
@@ -588,14 +591,14 @@ function VehicleBar({data,owner,disabled,onBrandChange,onModelChange,onColorChan
     return(
       <div className="au" style={{padding:"18px 20px",borderRadius:14,background:T.card,border:`1.5px solid ${T.border}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-          <h3 style={{fontSize:13,fontWeight:700,color:T.slate900,textTransform:"uppercase",letterSpacing:".08em"}}>Datos del Auto</h3>
-          <button onClick={()=>setEditing(false)} className="tr" style={{padding:"6px 14px",borderRadius:8,border:`1.5px solid ${T.border}`,background:T.card,color:T.slate900,fontSize:12,fontWeight:600,cursor:"pointer"}}>Cancelar</button>
+          <h3 style={{fontSize:Z(13),fontWeight:700,color:T.slate900,textTransform:"uppercase",letterSpacing:".08em"}}>Datos del Auto</h3>
+          <button onClick={()=>setEditing(false)} className="tr" style={{padding:"6px 14px",borderRadius:8,border:`1.5px solid ${T.border}`,background:T.card,color:T.slate900,fontSize:Z(12),fontWeight:600,cursor:"pointer"}}>Cancelar</button>
         </div>
         <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
           <Fd label="Marca" value={eBrand} req valueNode={eBrand?<BrandValue name={eBrand}/>:null}
             dropdownItems={BRANDS} dropdownSearchable dropdownTitle="Marca"
             onDropdownSelect={b=>{setEBrand(b.name);setEModel("");if(onBrandChange)onBrandChange(b.name);}}
-            renderDropdownItem={b=>(<><BrandMark name={b.name} s={38}/><span style={{fontWeight:500}}>{b.name}</span></>)}
+            renderDropdownItem={b=>(<><BrandMark name={b.name} s={30} w={56}/><span style={{fontWeight:500}}>{b.name}</span></>)}
           />
           <Fd label="Modelo" value={eModel} req disabled={!eBrand}
             dropdownItems={(MODELS[eBrand]||[]).map(m=>({name:m}))} dropdownSearchable dropdownTitle={`Modelos ${eBrand||""}`}
@@ -614,12 +617,12 @@ function VehicleBar({data,owner,disabled,onBrandChange,onModelChange,onColorChan
     <div className="au" style={{display:"flex",alignItems:"center",gap:16,padding:"16px 20px",borderRadius:14,background:T.card,border:`1.5px solid ${T.border}`,opacity:disabled?.7:1,transition:"opacity .3s"}}>
       <BrandMark name={data?.brand} s={40}/>
       <div style={{flex:1,display:"flex",gap:28,alignItems:"baseline",flexWrap:"wrap"}}>
-        <div><div style={{fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Marca y Modelo</div><div style={{fontSize:15,fontWeight:700,color:T.slate900}}>{data.brand}, {data.model}</div></div>
-        <div><div style={{fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Color</div><div style={{display:"flex",alignItems:"center",gap:6,fontSize:15,fontWeight:600,color:T.slate900}}><span style={{width:12,height:12,borderRadius:"50%",background:data.hex,border:data.hex==="#E5E7EB"?`1px solid ${T.border}`:"none"}}/>{data.color}</div></div>
-        {owner&&<div><div style={{fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Propietario</div><div style={{display:"flex",alignItems:"center",gap:6,fontSize:15,fontWeight:600,color:T.slate900}}><I n="person" s={14} c={T.muted}/>{owner}</div></div>}
+        <div><div style={{fontSize:Z(11),fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Marca y Modelo</div><div style={{fontSize:Z(15),fontWeight:700,color:T.slate900}}>{data.brand}, {data.model}</div></div>
+        <div><div style={{fontSize:Z(11),fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Color</div><div style={{display:"flex",alignItems:"center",gap:6,fontSize:Z(15),fontWeight:600,color:T.slate900}}><span style={{width:12,height:12,borderRadius:"50%",background:data.hex,border:data.hex==="#E5E7EB"?`1px solid ${T.border}`:"none"}}/>{data.color}</div></div>
+        {owner&&<div><div style={{fontSize:Z(11),fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Propietario</div><div style={{display:"flex",alignItems:"center",gap:6,fontSize:Z(15),fontWeight:600,color:T.slate900}}><I n="person" s={14} c={T.muted}/>{owner}</div></div>}
       </div>
       {!disabled&&<button onClick={()=>setEditing(true)} className="tr" onMouseEnter={e=>e.currentTarget.style.background=T.kigo50} onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-        style={{display:"flex",alignItems:"center",gap:6,padding:"8px 16px",borderRadius:10,border:`1.5px solid ${T.kigo500}`,background:"transparent",color:T.kigo500,fontSize:13,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}><I n="edit" s={14} c={T.kigo500}/> Editar</button>}
+        style={{display:"flex",alignItems:"center",gap:6,padding:"8px 16px",borderRadius:10,border:`1.5px solid ${T.kigo500}`,background:"transparent",color:T.kigo500,fontSize:Z(13),fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}><I n="edit" s={14} c={T.kigo500}/> Editar</button>}
     </div>
   );
 }
@@ -712,7 +715,7 @@ function StatusCard({status,date,soft}){
           <span style={{fontSize:"clamp(21px,3.1vh,26px)",fontWeight:700,color:"#FAFAFA"}}>{s.label}</span>
         </div>
         <p style={{fontSize:"clamp(14px,2.1vh,17px)",fontWeight:600,lineHeight:1.35,margin:0,whiteSpace:"pre-line"}}>{soft?String(msgFor(status,s.msg)).split("\n")[0]:msgFor(status,s.msg)}</p>
-        {date&&<div style={{fontSize:13,fontWeight:600}}>Asignado el {date}.</div>}
+        {date&&<div style={{fontSize:Z(13),fontWeight:600}}>Asignado el {date}.</div>}
       </div>
     </div>
   );
@@ -730,7 +733,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         <Fd label="Marca" value={brand} req need={!dis} disabled={dis} valueNode={brand?<BrandValue name={brand}/>:null}
           dropdownItems={BRANDS} dropdownSearchable dropdownTitle="Marca"
           onDropdownSelect={b=>{setBrand(b.name);setModel("");}}
-          renderDropdownItem={b=>(<><BrandMark name={b.name} s={38}/><span style={{fontWeight:500}}>{b.name}</span></>)}
+          renderDropdownItem={b=>(<><BrandMark name={b.name} s={30} w={56}/><span style={{fontWeight:500}}>{b.name}</span></>)}
         />
         <Fd label="Modelo" value={model} req need={!dis} disabled={dis||!brand}
           dropdownItems={(MODELS[brand]||[]).map(m=>({name:m}))} dropdownSearchable dropdownTitle={`Modelos ${brand||""}`}
@@ -739,17 +742,17 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         />
         <ColorPicker value={color} onSelect={setColor} disabled={dis} need={!dis}/>
         </div>
-      <div style={{marginBottom:"calc(var(--g,12px)*.7)"}}>
-        <NameInput value={name} onChange={e=>setName(e.target.value)} plate={plate} disabled={dis} req need={!dis}/>
-      </div>
-      {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
+      {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:Z(12),fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
       {!kigoData&&<div style={{height:25,marginBottom:"var(--sg,24px)"}}/>}
       <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
       {/* ── DATOS DE LA VISITA ── */}
       <SH t="Datos de la Visita"/>
+      <div style={{marginBottom:"var(--g,12px)"}}>
+        <NameInput value={name} onChange={e=>setName(e.target.value)} plate={plate} disabled={dis} req need={!dis}/>
+      </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"var(--g,12px)",marginBottom:"var(--g,12px)"}}>
-        <Fd label="Tipo de visita" value={visitType} req need={!dis} disabled={dis}
+        <Fd label="Tipo de Visita" value={visitType} req need={!dis} disabled={dis}
           dropdownItems={(colono?["Colono",...VISIT_TYPES]:VISIT_TYPES).map(v=>({name:v}))}
           onDropdownSelect={v=>setVisitType(v.name)}
           renderDropdownItem={v=>(<span style={{fontWeight:500}}>{v.name}</span>)}
@@ -762,7 +765,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         <Fd label="Código" value="" editable disabled={dis}/>
       </div>
       <div style={{marginBottom:"var(--sg,24px)"}}>
-        <Fd label="Comentarios (opcional)" value="" editable tall disabled={dis}/>
+        <Fd label="Comentarios" value="" editable tall disabled={dis}/>
       </div>
       <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
@@ -970,7 +973,7 @@ function CheckInAuto(){
 
   const handleX=()=>{setConfirm(null);setAuthInfo(null);setPlate("");setPhase("idle");setResult(null);setContentDisabled(false);setBrand("");setModel("");setColor("");setVisitType("");setCluster("");setStreet("");setHouse("");setName("");setIsCustomBrand(false);ref.current?.focus();};
   const handlePlateChange=(e)=>{const v=cleanPlate(e.target.value);setPlate(v);if(phase==="result")setContentDisabled(v===""||v!==searchedRef.current);};
-  /* Historial de la placa: el nombre de quien ingresa queda en «Nombre del propietario» (registros previos) */
+  /* Historial de la placa: el nombre de quien ingresa queda en «Nombre» (registros previos) */
   const rememberName=()=>{const k=(plate||"").toUpperCase(),n=(name||"").trim();if(!k||!n)return;NAME_HISTORY[k]=[n,...(NAME_HISTORY[k]||[]).filter(x=>x!==n)];};
   const handleRegister=()=>{
     if(phase!=="result")return;
@@ -1022,6 +1025,8 @@ function CheckInAuto(){
     return()=>window.removeEventListener("resize",fill);
   });
   React.useEffect(()=>{const f=()=>setFit(Math.max(.72,Math.min(1,window.innerHeight/790,(window.innerWidth-133)/1000)));f();window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
+  /* Letra: en pantallas chicas (zoom<1) se compensa en parte; en las grandes crece junto con los componentes */
+  const fz0=+(1+(1-fit)*0.5).toFixed(3);
   const checkRc=()=>{
     const el=rcRef.current;
     if(!el){setRcMore(false);setDomScroll(p=>p.needs===false&&p.atEnd===true?p:{needs:false,atEnd:true});return;}
@@ -1066,7 +1071,7 @@ function CheckInAuto(){
       if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){if(phase==="registered"){e.preventDefault();handleOpenBarrier();}else if(phase==="result"&&ctaRef.current){e.preventDefault();ctaRef.current();}}};
     window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h);
   });
-  const missing=[!brand&&"Marca",!model&&"Modelo",!color&&"Color",!name&&"Nombre del propietario",!visitType&&"Tipo de visita",!(cluster&&street&&house)&&"Ubicación"].filter(Boolean);
+  const missing=[!brand&&"Marca",!model&&"Modelo",!color&&"Color",!name&&"Nombre",!visitType&&"Tipo de Visita",!(cluster&&street&&house)&&"Calle/Edificio/Piso"].filter(Boolean);
   const ctaRef=useRef(null);
   const onCta=()=>{
     if(!canRegister){if(domPending){const el=rcRef.current;if(el)el.scrollTo({top:el.scrollHeight,behavior:"smooth"});}setNudge(n=>n+1);
@@ -1079,22 +1084,22 @@ function CheckInAuto(){
   ctaRef.current=onCta;
 
   return(
-    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)","--ev":"round(clamp(88px,13vh,150px),2px)","--plh":"round(clamp(48px,6.4vh,56px),2px)","--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
+    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)","--ev":"round(clamp(88px,13vh,150px),2px)","--plh":"round(clamp(48px,6.4vh,56px),2px)","--fz":fz0,"--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
       <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Lote con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
 
       {/* ═══ IDLE ═══ */}
       {phase==="idle"&&(
         <div className="af ovc scrollsoft" style={{padding:0,maxWidth:940,flex:1,minHeight:0,overflowY:"auto"}}>
-          <h1 style={{fontSize:24,fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
-          <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,2vh,18px) + 1px + clamp(14px,2.4vh,24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
+          <h1 style={{fontSize:Z(24),fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
+          <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,2vh,18px) + 1px + clamp(14px,2.4vh,24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{marginBottom:34}}><div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:Z(16),padding:"0 6px",fontSize:Z(13),fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
-                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:Z(24),fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
-              style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
+              style={{width:120,height:56,borderRadius:12,fontSize:Z(16),fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
               <I n="search" s={20} c={plate.trim()?"#FAFAFA":DIS_BTN.color}/> Buscar
             </button>
           </div>
@@ -1107,16 +1112,16 @@ function CheckInAuto(){
       {/* ═══ SEARCHING ═══ */}
       {phase==="searching"&&(
         <div className="af" style={{padding:0}}>
-          <h1 style={{fontSize:24,fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
-          <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,2vh,18px) + 1px + clamp(14px,2.4vh,24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
+          <h1 style={{fontSize:Z(24),fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
+          <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,2vh,18px) + 1px + clamp(14px,2.4vh,24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
-              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:Z(16),padding:"0 6px",fontSize:Z(13),fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:Z(24),fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
             </div>
             <div style={{width:120,height:56,borderRadius:12,background:T.kigo500,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <div className="ap" style={{width:18,height:18,border:"3px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
-              <span style={{color:"#FAFAFA",fontSize:15,fontWeight:600}}>Buscando…</span>
+              <span style={{color:"#FAFAFA",fontSize:Z(15),fontWeight:600}}>Buscando…</span>
             </div>
           </div>
         </div>
@@ -1126,37 +1131,37 @@ function CheckInAuto(){
       {showResult&&result&&(
         <div className="au" style={{display:"flex",flexDirection:"column",flex:1,minHeight:0}}>
           <div style={{marginBottom:"clamp(12px,2vh,18px)",flexShrink:0}}>
-            <h1 style={{fontSize:24,fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
-            <p style={{fontSize:14,fontWeight:500,color:"#262626",margin:0}}>Consulta la placa para ver el estatus de seguridad del vehículo, o continúa directamente con los datos de la visita.</p>
+            <h1 style={{fontSize:Z(24),fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
+            <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:0}}>Consulta la placa para ver el estatus de seguridad del vehículo, o continúa directamente con los datos de la visita.</p>
           </div>
 
           <div aria-hidden="true" style={{height:1,background:`linear-gradient(to right,transparent,${lineTint} 6%,${lineTint} 94%,transparent)`,marginBottom:"clamp(14px,2.4vh,24px)",flexShrink:0,transition:"background .4s ease"}}/>
 
           <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1,minHeight:0}}>
             {/* ── LEFT (70%) ── */}
-            <div ref={colRef} style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(calc(clamp(36px,5.2vh,44px) * var(--k,1)),2px)","--sg":"round(calc(clamp(12px,2.4vh,24px) * var(--k,1)),4px)","--g":"round(calc(clamp(6px,1.3vh,12px) * var(--k,1)),2px)","--ev":"round(calc(clamp(88px,13vh,150px) * var(--k,1)),2px)","--plh":"round(calc(clamp(48px,6.4vh,56px) * var(--k,1)),2px)"}}>
+            <div ref={colRef} style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(calc(clamp(36px,5.2vh,44px) * var(--k,1)),2px)","--sg":"round(calc(clamp(12px,2.4vh,24px) * var(--k,1)),4px)","--g":"round(calc(clamp(6px,1.3vh,12px) * var(--k,1)),2px)","--ev":"round(calc(clamp(88px,13vh,150px) * var(--k,1)),2px)","--plh":"round(calc(clamp(48px,6.4vh,56px) * var(--k,1)),2px)","--fz":`calc(${fz0} * (1 + (var(--k,1) - 1) * .85))`}}>
           {/* Placa */}
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
-              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
+              <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:Z(16),padding:"0 6px",fontSize:Z(13),fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
-                aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                aria-label="Número de placa" style={{width:"100%",height:"var(--plh,56px)",padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:Z(24),fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
               <button onClick={handleX} className="tr" aria-label="Limpiar placa"
                 style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",width:30,height:30,borderRadius:8,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#525252"}}>
                 <I n="x" s={14} c="#525252"/>
               </button>
             </div>
             <button onClick={()=>{if(dis&&plate.trim())doSearch();}} disabled={!dis||!plate.trim()} className="tr"
-              style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:dis&&plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(dis&&plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
+              style={{width:120,height:56,borderRadius:12,fontSize:Z(16),fontWeight:600,cursor:dis&&plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(dis&&plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
               <I n="search" s={20} c={dis&&plate.trim()?"#FAFAFA":DIS_BTN.color}/> Buscar
             </button>
             {showResult&&isNotification&&!dis&&(<div className="asr" role="status" style={{flex:1,minWidth:0,display:"flex",alignItems:"center",gap:10,minHeight:"var(--plh,56px)",boxSizing:"border-box",padding:"6px 14px",borderRadius:12,background:"#FEF2F2",border:"1px solid #FCA5A5"}}>
               <span style={{flexShrink:0,display:"inline-flex"}}><I n="alert-circle" s={20} c="#B91C1B" sw={2}/></span>
               <span style={{display:"flex",flexDirection:"column",minWidth:0}}>
-                <span style={{fontSize:13,fontWeight:700,color:"#991B1B",lineHeight:"18px"}}>Vehículo con sanciones pendientes</span>
-                {result.sem?.motivo&&result.sem.motivo!=="—"&&<span style={{fontSize:12,color:"#B91C1B",lineHeight:"16px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{result.sem.motivo}</span>}
+                <span style={{fontSize:Z(13),fontWeight:700,color:"#991B1B",lineHeight:Z(18)}}>Vehículo con sanciones pendientes</span>
+                {result.sem?.motivo&&result.sem.motivo!=="—"&&<span style={{fontSize:Z(12),color:"#B91C1B",lineHeight:Z(16),overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{result.sem.motivo}</span>}
               </span>
             </div>)}
           </div>
@@ -1191,10 +1196,10 @@ function CheckInAuto(){
               {(isRestriction||isNotification)&&result.sem?.motivo&&result.sem.motivo!=="—"&&!dis&&(
                 <div className="asr" style={{borderRadius:14,background:T.card,border:`1px solid ${T.border}`,padding:"12px 16px",animationDelay:"100ms"}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:6}}>
-                    <span style={{fontSize:13,fontWeight:600,color:isRestriction?"#B91C1B":SB[result.status]?.cardBg||T.muted}}>{isRestriction?"Motivo de restricción":result.status==="notificacion"?"Motivo de notificación":"Motivo"}</span>
-                    <span style={{fontSize:11,fontWeight:600,color:T.muted,background:T.secondary,borderRadius:999,padding:"2px 9px"}}>Semaforización</span>
+                    <span style={{fontSize:Z(13),fontWeight:600,color:isRestriction?"#B91C1B":SB[result.status]?.cardBg||T.muted}}>{isRestriction?"Motivo de restricción":result.status==="notificacion"?"Motivo de notificación":"Motivo"}</span>
+                    <span style={{fontSize:Z(11),fontWeight:600,color:T.muted,background:T.secondary,borderRadius:999,padding:"2px 9px"}}>Semaforización</span>
                   </div>
-                  <p style={{color:T.slate900,fontWeight:600,margin:0,fontSize:14,lineHeight:1.45}}>{result.sem.motivo}</p>
+                  <p style={{color:T.slate900,fontWeight:600,margin:0,fontSize:Z(14),lineHeight:1.45}}>{result.sem.motivo}</p>
                 </div>
               )}
 
