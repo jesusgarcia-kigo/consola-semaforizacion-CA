@@ -404,7 +404,7 @@ function ColorPicker({value,onSelect,disabled,need}){
     <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Color" onKeyDown={e=>{if(!disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);}else if(e.key==="Escape")setOpen(false);}} onClick={()=>!disabled&&setOpen(!open)}
         data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#404040":"#767676",bg,cursor:disabled?"not-allowed":"pointer"})}>
-        {sel&&<span style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"1px solid #767676":"none",boxSizing:"border-box",boxShadow:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"none":"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
+        {sel&&<span style={{width:32,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"1px solid #767676":"none",boxSizing:"border-box",boxShadow:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"none":"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
         <div style={fcell}><FL label="Color" req up={up} act={open} need={flag&&!open} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
         <I n="chevron" s={14} c="#525252"/>
       </div>
@@ -650,9 +650,9 @@ function Evidence({hasPhotos,disabled,fixedH}){
   };
 
   return(
-    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:fixedH?"0 0 auto":1,minHeight:fixedH?0:96,display:"flex",flexDirection:"column"}}>
+    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:"0 1 auto",minHeight:0,marginTop:"auto",display:"flex",flexDirection:"column"}}>
       <SH t="Evidencia" bg={hasPhotos?undefined:"#E7E5E4"}/>
-      <div style={fixedH?{display:"flex",gap:12,height:"var(--ev,140px)"}:{display:"flex",gap:"var(--g,12px)",flex:1,minHeight:0,maxHeight:"var(--evmax,200px)"}}>
+      <div style={{display:"flex",gap:fixedH?12:"var(--g,12px)",height:"var(--ev,140px)",minHeight:72,flexShrink:1}}>
         {labels.map((lbl,i)=>{
           const imgSrc=hasPhotos?EVIDENCE_IMGS[i]:null;
           const isRetaking=retaken[i];
@@ -736,7 +736,8 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         <NameInput value={name} onChange={e=>setName(e.target.value)} plate={plate} disabled={dis} req need={!dis}/>
       </div>
       {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
-      {!kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}/>}
+      {!kigoData&&<div style={{height:25,marginBottom:"var(--sg,24px)"}}/>}
+      <div aria-hidden="true" style={{flex:"1 1 0",minHeight:0,maxHeight:40}}/>
 
       {/* ── DATOS DE LA VISITA ── */}
       <SH t="Datos de la visita"/>
@@ -756,6 +757,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
       <div style={{marginBottom:"var(--sg,24px)"}}>
         <Fd label="Comentarios (opcional)" value="" editable tall disabled={dis}/>
       </div>
+      <div aria-hidden="true" style={{flex:"1 1 0",minHeight:0,maxHeight:40}}/>
 
       {/* ── EVIDENCIA ── */}
       <Evidence hasPhotos={hasPhotos} disabled={dis}/>
@@ -1044,7 +1046,7 @@ function CheckInAuto(){
   ctaRef.current=onCta;
 
   return(
-    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,48px),2px)","--sg":"round(clamp(12px,2.4vh,28px),4px)","--g":"round(clamp(6px,1.3vh,14px),2px)","--ev":"round(clamp(112px,15vh,180px),2px)","--evmax":"200px","--plh":"round(clamp(48px,6.4vh,60px),2px)","--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
+    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)","--ev":"round(clamp(88px,13vh,150px),2px)","--plh":"round(clamp(48px,6.4vh,56px),2px)","--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
       <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Lote con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
 
       {/* ═══ IDLE ═══ */}
@@ -1178,7 +1180,7 @@ function CheckInAuto(){
               </div>
               {/* CTA: fuera del área con scroll, siempre a la vista */}
               {(phase==="result"||phase==="registered")&&(
-                <div className={nudge?"shake-reasons":""} key={"cta"+nudge} style={{flexShrink:0,paddingBottom:4}}>
+                <div className={nudge?"shake-reasons":""} key={"cta"+nudge} style={{flexShrink:0,paddingBottom:0}}>
                   
                   
                   {phase==="result"&&domRestricted&&!isColono&&RULE_MODE==="bloqueo"&&!houseBlocked&&<div style={{display:"flex",gap:10,alignItems:"center",padding:"10px 14px",borderRadius:12,background:"#F0FDF4",border:"1.5px solid #BBF7D0",color:"#166534",fontSize:13,fontWeight:700,lineHeight:1.4,marginBottom:10}}>
