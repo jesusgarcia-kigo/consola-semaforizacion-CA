@@ -296,8 +296,8 @@ function Sidebar({active,onNav,onHelp}){
 }
 
 /* ═══ SECTION HEADER — Accessible, prominent ═══ */
-function SH({t,bg}){
-  return(<div style={{marginBottom:"clamp(8px,1.6vh,14px)"}}><span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",height:30,padding:"0 22px",borderRadius:20,background:bg||"#F5F5F4",fontSize:Z(14),fontWeight:600,color:"#262626"}}>{t}</span></div>);
+function SH({t,bg,right}){
+  return(<div style={{marginBottom:"clamp(8px,calc(1.6 * var(--vh)),14px)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}><span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",height:30,padding:"0 22px",borderRadius:20,background:bg||"#F5F5F4",fontSize:Z(14),fontWeight:600,color:"#262626"}}>{t}</span>{right}</div>);
 }
 
 /* Tamaño de letra proporcional: --fz crece con los componentes (--k) y compensa pantallas chicas */
@@ -709,12 +709,12 @@ function StatusCard({status,date,soft}){
   const s=SB[status];if(!s)return null;
   return(
     <div className="asr" style={{borderRadius:14,background:s.cardBg,color:"#F5F5F5",overflow:"hidden",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{padding:"clamp(12px,2.2vh,20px) 22px",width:"100%",display:"flex",flexDirection:"column",gap:"clamp(6px,1.5vh,14px)"}}>
+      <div style={{padding:"clamp(12px,calc(2.2 * var(--vh)),20px) 22px",width:"100%",display:"flex",flexDirection:"column",gap:"clamp(6px,calc(1.5 * var(--vh)),14px)"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <I n={s.icon} s={30} c="#FAFAFA" sw={2}/>
-          <span style={{fontSize:"clamp(21px,3.1vh,26px)",fontWeight:700,color:"#FAFAFA"}}>{s.label}</span>
+          <span style={{fontSize:"clamp(21px,calc(3.1 * var(--vh)),26px)",fontWeight:700,color:"#FAFAFA"}}>{s.label}</span>
         </div>
-        <p style={{fontSize:"clamp(14px,2.1vh,17px)",fontWeight:600,lineHeight:1.35,margin:0,whiteSpace:"pre-line"}}>{soft?String(msgFor(status,s.msg)).split("\n")[0]:msgFor(status,s.msg)}</p>
+        <p style={{fontSize:"clamp(14px,calc(2.1 * var(--vh)),17px)",fontWeight:600,lineHeight:1.35,margin:0,whiteSpace:"pre-line"}}>{soft?String(msgFor(status,s.msg)).split("\n")[0]:msgFor(status,s.msg)}</p>
         {date&&<div style={{fontSize:Z(13),fontWeight:600}}>Asignado el {date}.</div>}
       </div>
     </div>
@@ -728,8 +728,8 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
   return(
     <div style={{opacity:dis?.55:1,transition:"opacity .3s",display:"flex",flexDirection:"column",flex:1,minHeight:0}}>
       {/* ── DATOS DEL AUTO ── */}
-      <SH t="Datos del Auto"/>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"var(--g,12px)",marginBottom:"var(--g,12px)"}}>
+      <SH t="Datos del Auto" right={kigoData?<span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:Z(12),fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span>:null}/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"var(--g,12px)"}}>
         <Fd label="Marca" value={brand} req need={!dis} disabled={dis} valueNode={brand?<BrandValue name={brand}/>:null}
           dropdownItems={BRANDS} dropdownSearchable dropdownTitle="Marca"
           onDropdownSelect={b=>{setBrand(b.name);setModel("");}}
@@ -742,8 +742,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         />
         <ColorPicker value={color} onSelect={setColor} disabled={dis} need={!dis}/>
         </div>
-      {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:Z(12),fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
-      {!kigoData&&<div style={{height:25,marginBottom:"var(--sg,24px)"}}/>}
+      <div aria-hidden="true" style={{height:"var(--sg,24px)"}}/>
       <div aria-hidden="true" data-spacer="1" style={{flex:"1 1 0",minHeight:0,maxHeight:32}}/>
 
       {/* ── DATOS DE LA VISITA ── */}
@@ -1004,6 +1003,7 @@ function CheckInAuto(){
   const searchedRef=useRef("");
   const[nudge,setNudge]=useState(0);
   const[fit,setFit]=useState(1);
+  const[vp,setVp]=useState({w:window.innerWidth,h:window.innerHeight});
   const colRef=useRef(null);
   /* Los componentes crecen juntos (factor --k) hasta absorber el alto libre, con tope estético: 1.22 */
   React.useLayoutEffect(()=>{
@@ -1024,9 +1024,9 @@ function CheckInAuto(){
     window.addEventListener("resize",fill);
     return()=>window.removeEventListener("resize",fill);
   });
-  React.useEffect(()=>{const f=()=>setFit(Math.max(.72,Math.min(1,window.innerHeight/790,(window.innerWidth-133)/1000)));f();window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
+  React.useEffect(()=>{const f=()=>{setFit(Math.max(.5,Math.min(1.6,window.innerHeight/790,(window.innerWidth-133)/1000)));setVp({w:window.innerWidth,h:window.innerHeight});};f();window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
   /* Letra: en pantallas chicas (zoom<1) se compensa en parte; en las grandes crece junto con los componentes */
-  const fz0=+(1+(1-fit)*0.5).toFixed(3);
+  const fz0=1;
   const checkRc=()=>{
     const el=rcRef.current;
     if(!el){setRcMore(false);setDomScroll(p=>p.needs===false&&p.atEnd===true?p:{needs:false,atEnd:true});return;}
@@ -1084,14 +1084,14 @@ function CheckInAuto(){
   ctaRef.current=onCta;
 
   return(
-    <div className="tr3" style={{"--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)","--ev":"round(clamp(88px,13vh,150px),2px)","--plh":"round(clamp(48px,6.4vh,56px),2px)","--fz":fz0,"--cta":"round(clamp(56px,8.4vh,72px),2px)",zoom:fit,height:fit<1?`calc(100vh / ${fit})`:"100vh",boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:fit<1?`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`:"-24px -40px -48px",padding:"clamp(18px,3.4vh,34px) 40px clamp(16px,2.8vh,28px)",borderRadius:0}}>
+    <div className="tr3" style={{"--fh":"round(clamp(36px,calc(5.2 * var(--vh)),44px),2px)","--sg":"round(clamp(12px,calc(2.4 * var(--vh)),24px),4px)","--g":"round(clamp(14px,calc(2 * var(--vh)),20px),2px)","--ev":"round(clamp(88px,calc(13 * var(--vh)),150px),2px)","--plh":"round(clamp(48px,calc(6.4 * var(--vh)),56px),2px)","--fz":fz0,"--vh":`${(vp.h/fit/100).toFixed(4)}px`,"--vw":`${(vp.w/fit/100).toFixed(4)}px`,"--cta":"round(clamp(56px,calc(8.4 * var(--vh)),72px),2px)",zoom:fit,height:`calc(100vh / ${fit})`,boxSizing:"border-box",display:"flex",flexDirection:"column",background:pageBg,margin:`calc(-24px / ${fit}) calc(-40px / ${fit}) calc(-48px / ${fit})`,padding:"clamp(18px,calc(3.4 * var(--vh)),34px) 40px clamp(16px,calc(2.8 * var(--vh)),28px)",borderRadius:0}}>
       <div role="status" aria-live="polite" style={{position:"absolute",width:1,height:1,overflow:"hidden",clip:"rect(0 0 0 0)",whiteSpace:"nowrap"}}>{phase==="result"&&st?`${st.label}. ${domRestricted?"Lote con ingreso restringido. ":""}${houseBlocked?"Registro bloqueado.":""}`:""}</div>
 
       {/* ═══ IDLE ═══ */}
       {phase==="idle"&&(
         <div className="af ovc scrollsoft" style={{padding:0,maxWidth:940,flex:1,minHeight:0,overflowY:"auto"}}>
           <h1 style={{fontSize:Z(24),fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
-          <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,2vh,18px) + 1px + clamp(14px,2.4vh,24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
+          <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:"0 0 calc(clamp(12px,calc(2 * var(--vh)),18px) + 1px + clamp(14px,calc(2.4 * var(--vh)),24px) + 14px)"}}>Ingresa la placa para consultar el estatus de seguridad del vehículo y continuar con el registro de la visita.</p>
           <div style={{marginBottom:34}}><div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:Z(16),padding:"0 6px",fontSize:Z(13),fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
@@ -1130,18 +1130,18 @@ function CheckInAuto(){
       {/* ═══ RESULT ═══ */}
       {showResult&&result&&(
         <div className="au" style={{display:"flex",flexDirection:"column",flex:1,minHeight:0}}>
-          <div style={{marginBottom:"clamp(12px,2vh,18px)",flexShrink:0}}>
+          <div style={{marginBottom:"clamp(12px,calc(2 * var(--vh)),18px)",flexShrink:0}}>
             <h1 style={{fontSize:Z(24),fontWeight:700,color:"#262626",margin:"0 0 8px",lineHeight:"normal"}}>Registrar Acceso</h1>
             <p style={{fontSize:Z(14),fontWeight:500,color:"#262626",margin:0}}>Consulta la placa para ver el estatus de seguridad del vehículo, o continúa directamente con los datos de la visita.</p>
           </div>
 
-          <div aria-hidden="true" style={{height:1,background:`linear-gradient(to right,transparent,${lineTint} 6%,${lineTint} 94%,transparent)`,marginBottom:"clamp(14px,2.4vh,24px)",flexShrink:0,transition:"background .4s ease"}}/>
+          <div aria-hidden="true" style={{height:1,background:`linear-gradient(to right,transparent,${lineTint} 6%,${lineTint} 94%,transparent)`,marginBottom:"clamp(14px,calc(2.4 * var(--vh)),24px)",flexShrink:0,transition:"background .4s ease"}}/>
 
           <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1,minHeight:0}}>
             {/* ── LEFT (70%) ── */}
-            <div ref={colRef} style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(calc(clamp(36px,5.2vh,44px) * var(--k,1)),2px)","--sg":"round(calc(clamp(12px,2.4vh,24px) * var(--k,1)),4px)","--g":"round(calc(clamp(6px,1.3vh,12px) * var(--k,1)),2px)","--ev":"round(calc(clamp(88px,13vh,150px) * var(--k,1)),2px)","--plh":"round(calc(clamp(48px,6.4vh,56px) * var(--k,1)),2px)","--fz":`calc(${fz0} * (1 + (var(--k,1) - 1) * .85))`}}>
+            <div ref={colRef} style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(calc(clamp(36px,calc(5.2 * var(--vh)),44px) * var(--k,1)),2px)","--sg":"round(calc(clamp(12px,calc(2.4 * var(--vh)),24px) * var(--k,1)),4px)","--g":"round(calc(clamp(14px,calc(2 * var(--vh)),20px) * var(--k,1)),2px)","--ev":"round(calc(clamp(88px,calc(13 * var(--vh)),150px) * var(--k,1)),2px)","--plh":"round(calc(clamp(48px,calc(6.4 * var(--vh)),56px) * var(--k,1)),2px)","--fz":`calc(${fz0} * (1 + (var(--k,1) - 1) * .85))`}}>
           {/* Placa */}
-          <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
+          <div style={{marginBottom:"clamp(10px,calc(2 * var(--vh)),20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:Z(16),padding:"0 6px",fontSize:Z(13),fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
@@ -1167,7 +1167,7 @@ function CheckInAuto(){
           </div>
           </div>
 
-          <div aria-hidden="true" style={{height:1,background:`linear-gradient(to right,${lineTint},transparent 85%)`,marginBottom:"clamp(12px,2.2vh,22px)",flexShrink:0,transition:"background .4s ease"}}/>
+          <div aria-hidden="true" style={{height:1,background:`linear-gradient(to right,${lineTint},transparent 85%)`,marginBottom:"clamp(12px,calc(2.2 * var(--vh)),22px)",flexShrink:0,transition:"background .4s ease"}}/>
 
           
 
@@ -1185,9 +1185,9 @@ function CheckInAuto(){
             </div>
 
             {/* ── Línea de división entre zona de trabajo y zona de visualización ── */}
-            <div aria-hidden="true" style={{width:1,background:`linear-gradient(to bottom,transparent,${lineTint} 8%,${lineTint} 92%,transparent)`,flexShrink:0,margin:"0 clamp(20px,2.4vw,36px)",transition:"background .4s ease"}}/>
+            <div aria-hidden="true" style={{width:1,background:`linear-gradient(to bottom,transparent,${lineTint} 8%,${lineTint} 92%,transparent)`,flexShrink:0,margin:"0 clamp(20px,calc(2.4 * var(--vw)),36px)",transition:"background .4s ease"}}/>
             {/* ── RIGHT: visualización y botón ── */}
-            <div className="rightcol" style={{width:"clamp(340px,30vw,440px)",flexShrink:0,display:"flex",flexDirection:"column",gap:12,minHeight:0,paddingTop:14}}>
+            <div className="rightcol" style={{width:"clamp(340px,calc(30 * var(--vw)),440px)",flexShrink:0,display:"flex",flexDirection:"column",gap:12,minHeight:0,paddingTop:14}}>
               <div style={{position:"relative",flex:1,minHeight:0}}>
               <div ref={rcRef} onScroll={checkRc} className="rcin ovc scrollsoft" tabIndex={0} role="region" aria-label="Información del acceso" style={{position:"absolute",inset:0,overflowY:"auto",display:"flex",flexDirection:"column",gap:12,paddingRight:6}}>
               <StatusCard status={result.status} date={result.sem?.date} soft={houseBlocked&&result.status==="notificacion"}/>
