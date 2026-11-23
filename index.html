@@ -31,7 +31,8 @@ input,button,select,textarea{font-family:inherit}
 .breathe{animation:breathe 2.5s ease infinite}
 html,body{height:100%;overflow:hidden}
 :focus-visible{outline:3px solid #C2410C;outline-offset:2px}
-[data-fld]:focus-within{box-shadow:0 0 0 3px rgba(194,65,12,.4)}
+[data-fld]:focus-within{box-shadow:none}
+.plate-in:focus,.plate-in:focus-visible{outline:none!important;border-color:#FF6900!important;box-shadow:0 0 0 3px rgba(255,105,0,.25)}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .ovc{overscroll-behavior:contain}
 .scrollsoft::-webkit-scrollbar{width:8px}.scrollsoft::-webkit-scrollbar-thumb{background:rgba(15,23,42,.2);border-radius:99px}.scrollsoft::-webkit-scrollbar-thumb:hover{background:rgba(15,23,42,.32)}
@@ -301,10 +302,10 @@ function BrandMark({name,s=24,w,left}){
   if(b.img&&!bad)return(<span style={slot}><img src={b.img} alt="" onError={()=>setBad(true)} style={{maxWidth:"100%",maxHeight:"100%",objectFit:"contain",objectPosition:left?"left center":"center",display:"block"}}/></span>);
   return(<span style={{...slot,fontSize:13,fontWeight:600,color:"#737373",letterSpacing:".04em"}}>{b.logo||(name||"?").slice(0,2).toUpperCase()}</span>);
 }
-const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={26} w={26} left/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
+const BrandValue=({name})=>(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}><BrandMark name={name} s={24} w={32} left/><span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{name}</span></span>);
 
 /* ═══ ETIQUETA FLOTANTE: placeholder dentro del campo; al enfocar o con valor sube como título ═══ */
-const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:(up||leftDown===undefined?8:leftDown)-(((bw||((act||need)?2.4:1)))-1),top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#FB2C36",marginLeft:3}}>*</span>}</span>);
+const FL=({label,req,up,act,need,bw,danger,bg,topDown,leftDown})=>(<span style={{position:"absolute",left:(up||leftDown===undefined?8:leftDown)-(((bw||((act||need)?2.4:1)))-1),top:up?-9:(topDown!==undefined?topDown:"calc(50% - 8px)"),padding:"0 4px",background:up?`linear-gradient(to bottom,transparent ${9-(bw||((act||need)?2.4:1))}px,${bg||"#fff"} ${9-(bw||((act||need)?2.4:1))}px)`:"transparent",fontSize:up?12:14,fontWeight:up?600:500,lineHeight:"16px",color:danger?"#B91C1B":need?"#404040":act?"#C2410C":"#525252",transition:"top .16s ease,font-size .16s ease,color .16s ease",pointerEvents:"none",whiteSpace:"nowrap",zIndex:2}}>{label}{req&&<span style={{color:"#DC2626",marginLeft:3}}>*</span>}</span>);
 const fbox=(o)=>({position:"relative",boxSizing:"border-box",display:"flex",alignItems:"center",gap:8,padding:o.act?"0 10.6px":"0 12px",height:o.h||"var(--fh,42px)",borderRadius:8,border:`${o.act?"2.4px":"1px"} solid ${o.bc}`,background:o.bg,transition:"border-color .16s ease,background .16s ease",cursor:o.cursor||"text"});
 const fcell={flex:1,position:"static",height:"100%",minWidth:0,display:"flex",alignItems:"center"};
 const fval={fontSize:14,fontWeight:600,lineHeight:"20px",color:"#525252",minWidth:0,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",width:"100%",position:"relative",top:-0.5};
@@ -368,18 +369,19 @@ function Fd({tone,dropUp,label,value,req,icon,editable,onChange,disabled,valueNo
   const flag=!!need&&!has;
   const up=has||act;
   const danger=tone==="danger";
-  const bc=danger?"#B91C1B":act?"#FF6900":flag?"#404040":"#8A8A8A";
+  const Tag=tall?"textarea":"input";
+  const bc=danger?"#B91C1B":act?"#FF6900":flag?"#404040":"#767676";
   const bg=danger?"#FEF2F2":disabled?T.secondary:"#fff";
   return(
-    <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,transition:"opacity .3s",position:"relative"}}>
+    <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,transition:"opacity .3s",position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:(hasDropdown?0:undefined)} role={hasDropdown?"combobox":undefined} aria-expanded={hasDropdown?dd:undefined} aria-haspopup={hasDropdown?"listbox":undefined} aria-label={hasDropdown?label:undefined} onKeyDown={hasDropdown?(e=>{if(!disabled&&!dd&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setDd(true);}}):undefined} onClick={()=>{if(disabled)return;if(hasDropdown)setDd(!dd);else if(ref.current)ref.current.focus();}}
-        data-fld="1" data-need={flag?"1":undefined} style={{...fbox({act:act||flag,bc,bg,h:tall?"calc(var(--fh,42px)*1.6)":undefined,cursor:disabled?"default":hasDropdown?"pointer":"text"}),alignItems:tall?"flex-start":"center",paddingTop:tall?11:0}}>
+        data-fld="1" data-need={flag?"1":undefined} style={{...fbox({act:act||flag,bc,bg,h:tall?"calc(var(--fh,42px)*1.6)":undefined,cursor:disabled?"not-allowed":hasDropdown?"pointer":"text"}),alignItems:tall?"flex-start":"center",...(tall?{padding:`${(act||flag)?9.6:11}px ${(act||flag)?10.6:12}px 0`}:null)}}>
         {icon}
         <div style={{...fcell,height:tall?"auto":"100%",paddingTop:tall?2:0}}>
-          <FL label={label} req={req} up={up} act={act} need={flag&&!act} danger={danger} bg={bg} topDown={tall?12:undefined}/>
+          <FL label={label} req={req} up={up} act={act} need={flag&&!act} danger={danger} bg={bg} topDown={tall?((act||flag)?13.6:15):undefined}/>
           {editable&&!hasDropdown
-            ?<input ref={ref} value={txt} inputMode={inputMode} onChange={e=>{setTxt(e.target.value);if(onChange)onChange(e);}} onFocus={()=>setF(true)} onBlur={()=>setF(false)} disabled={disabled} aria-label={label} aria-required={req}
-               style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
+            ?<Tag ref={ref} rows={tall?2:undefined} value={txt} inputMode={inputMode} onChange={e=>{setTxt(e.target.value);if(onChange)onChange(e);}} onFocus={()=>setF(true)} onBlur={()=>setF(false)} disabled={disabled} aria-label={label} aria-required={req}
+               style={{...fval,...(tall?{whiteSpace:"pre-wrap",textOverflow:"clip",height:40,resize:"none",display:"block",top:0,overflow:"auto"}:null),border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
             :<span style={valueNode?{...fval,display:"flex",alignItems:"center"}:fval}>{valueNode||value||""}</span>}
         </div>
         {!disabled&&hasDropdown&&<I n="chevron" s={14} c="#525252"/>}
@@ -399,10 +401,10 @@ function ColorPicker({value,onSelect,disabled,need}){
   const flag=!!need&&!sel;
   const bg=disabled?T.secondary:"#fff";
   return(
-    <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
+    <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Color" onKeyDown={e=>{if(!disabled&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);}else if(e.key==="Escape")setOpen(false);}} onClick={()=>!disabled&&setOpen(!open)}
-        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#404040":"#8A8A8A",bg,cursor:disabled?"default":"pointer"})}>
-        {sel&&<span style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?`1px solid ${T.border}`:"none",boxShadow:"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
+        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:open||flag,bc:open?"#FF6900":flag?"#404040":"#767676",bg,cursor:disabled?"not-allowed":"pointer"})}>
+        {sel&&<span style={{width:26,height:26,display:"inline-flex",alignItems:"center",justifyContent:"flex-start",flexShrink:0}}><span style={{width:22,height:22,borderRadius:"50%",background:sel.hex,border:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"1px solid #767676":"none",boxSizing:"border-box",boxShadow:(sel.hex==="#F5F5F5"||sel.hex==="#F8F8F8")?"none":"inset 0 0 0 1px rgba(15,23,42,.08)"}}/></span>}
         <div style={fcell}><FL label="Color" req up={up} act={open} need={flag&&!open} bg={bg}/><span style={fval}>{sel?sel.name:""}</span></div>
         <I n="chevron" s={14} c="#525252"/>
       </div>
@@ -441,8 +443,8 @@ function NameInput({value,onChange,plate,disabled,req,need}){
   const up=has||f;
   const bg=disabled?T.secondary:"#fff";
   return(
-    <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
-      <div className="tr" data-fld="1" data-need={flag?"1":undefined} style={fbox({act:f||flag,bc:f?"#FF6900":flag?"#404040":"#8A8A8A",bg})}>
+    <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
+      <div className="tr" data-fld="1" data-need={flag?"1":undefined} style={fbox({act:f||flag,bc:f?"#FF6900":flag?"#404040":"#767676",bg})}>
         <div style={fcell}>
           <FL label="Nombre del propietario" req={req} up={up} act={f} need={flag&&!f} bg={bg}/>
           <input value={value||""} onChange={e=>{onChange(e);setShowSugg(true);}} onFocus={()=>{setF(true);if(history.length)setShowSugg(true);}} onBlur={()=>{setF(false);setTimeout(()=>setShowSugg(false),200);}} disabled={disabled} aria-label="Nombre del propietario"
@@ -469,19 +471,21 @@ function NameInput({value,onChange,plate,disabled,req,need}){
 function Counter({value,onChange,disabled,label="Personas que ingresan"}){
   const[txt,setTxt]=useState(String(value));
   React.useEffect(()=>{setTxt(String(value));},[value]);
+  const[f,setF]=useState(false);
   const set=n=>{const v=Math.min(99,Math.max(1,n));onChange(v);setTxt(String(v));};
-  const btn={width:44,flexShrink:0,height:"100%",border:"none",background:"transparent",cursor:disabled?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#525252",fontFamily:"inherit"};
+  const atMin=(parseInt(txt,10)||1)<=1;
+  const btn={width:44,flexShrink:0,height:"100%",border:"none",background:"transparent",cursor:disabled?"not-allowed":"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,color:"#525252",fontFamily:"inherit"};
   const bg=disabled?T.secondary:"#fff";
-  return(<div data-fld="1" style={{...fbox({bc:"#8A8A8A",bg,cursor:"default"}),padding:0,opacity:disabled?.55:1,width:"100%"}}>
-    <button type="button" aria-label="Menos personas" onClick={()=>!disabled&&set((parseInt(txt,10)||1)-1)} disabled={disabled} style={{...btn,justifyContent:"flex-start",paddingLeft:8.5}}><I n="minus" s={16} c="#525252" sw={2}/></button>
+  return(<div data-fld="1" style={{...fbox({act:f,bc:f?"#FF6900":"#767676",bg,cursor:"default"}),padding:0,opacity:disabled?.7:1,width:"100%"}}>
+    <button type="button" aria-label="Menos personas" onClick={()=>!disabled&&set((parseInt(txt,10)||1)-1)} disabled={disabled||atMin} style={{...btn,justifyContent:"flex-start",paddingLeft:f?7.1:8.5,opacity:atMin&&!disabled?.4:1,cursor:(disabled||atMin)?"not-allowed":"pointer"}}><I n="minus" s={16} c="#525252" sw={2}/></button>
     <div style={{flex:1,minWidth:0,height:"100%",position:"static"}}>
-      <FL label={label} req up bg={bg}/>
+      <FL label={label} req up act={f} bg={bg}/>
       <input inputMode="numeric" pattern="[0-9]*" aria-label={label} value={txt} disabled={disabled}
         onChange={e=>{const d=e.target.value.replace(/\D/g,"").slice(0,2);setTxt(d);if(d!==""&&parseInt(d,10)>0)onChange(parseInt(d,10));}}
-        onBlur={()=>{const n=parseInt(txt,10);set(isNaN(n)||n<1?1:n);}}
-        style={{width:"100%",height:"100%",border:"none",outline:"none",background:"transparent",textAlign:"center",fontSize:15,fontWeight:600,color:"#262626",fontFamily:"inherit",padding:0}}/>
+        onFocus={()=>setF(true)} onBlur={()=>{setF(false);const n=parseInt(txt,10);set(isNaN(n)||n<1?1:n);}}
+        style={{width:"100%",height:"100%",border:"none",outline:"none",background:"transparent",textAlign:"center",fontSize:14,fontWeight:600,color:"#525252",fontFamily:"inherit",padding:0}}/>
     </div>
-    <button type="button" aria-label="Más personas" onClick={()=>!disabled&&set((parseInt(txt,10)||0)+1)} disabled={disabled} style={{...btn,justifyContent:"flex-end",paddingRight:8.5}}><I n="plus" s={16} c="#525252" sw={2}/></button>
+    <button type="button" aria-label="Más personas" onClick={()=>!disabled&&set((parseInt(txt,10)||0)+1)} disabled={disabled} style={{...btn,justifyContent:"flex-end",paddingRight:f?7.1:8.5}}><I n="plus" s={16} c="#525252" sw={2}/></button>
   </div>);
 }
 
@@ -537,19 +541,19 @@ function LocationSearch({cluster,street,house,setLoc,disabled,restricted,need}){
     <button type="button" onClick={()=>setPath({c:path.c,s:""})} style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${path.s?T.border:T.kigo500}`,background:path.s?T.card:T.kigo50,fontSize:12,fontWeight:600,cursor:"pointer",color:T.slate900,fontFamily:"inherit"}}>Clúster {path.c}</button>
     {path.s&&<span style={{padding:"4px 10px",borderRadius:999,border:`1.5px solid ${T.kigo500}`,background:T.kigo50,fontSize:12,fontWeight:600,color:T.slate900}}>Calle {path.s}</span>}
   </div>):null;
-  const val=has?(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}>{restricted&&<I n="lock" s={14} c="#B91C2E" sw={2.2}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Lote {loteOf(street,house)} · {street} · Clúster {cluster}</span></span>):"";
+  const val=has?(<span style={{display:"inline-flex",alignItems:"center",gap:8,minWidth:0}}>{restricted&&<I n="lock" s={16} c="#B91C1B" sw={2}/>}<span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Lote {loteOf(street,house)} · {street} · Clúster {cluster}</span></span>):"";
   return(
-    <div style={{flex:1,minWidth:140,opacity:disabled?.55:1,position:"relative"}}>
+    <div style={{flex:1,minWidth:140,opacity:disabled?.7:1,position:"relative"}}>
       <div className="tr" tabIndex={disabled?-1:0} role="combobox" aria-expanded={open} aria-haspopup="listbox" aria-label="Buscar ubicación" onKeyDown={e=>{if(!disabled&&!open&&(e.key==="Enter"||e.key===" "||e.key==="ArrowDown")){e.preventDefault();setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}} onClick={()=>{if(disabled)return;setOpen(true);setTimeout(()=>ref.current&&ref.current.focus(),0);}}
-        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#404040":"#8A8A8A",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"default":"text"})}>
-        <span aria-hidden="true" style={{display:"inline-flex",flexShrink:0,overflow:"hidden",width:(has&&restricted&&!open)?0:20,marginRight:(has&&restricted&&!open)?-8:0,opacity:(has&&restricted&&!open)?0:1,transition:"width .22s ease,margin .22s ease,opacity .18s ease"}}><I n="search" s={20} c="#525252"/></span>
+        data-fld="1" data-need={flag?"1":undefined} style={fbox({act:(open&&!restricted)||flag,bc:restricted?"#B91C1B":open?"#FF6900":flag?"#404040":"#767676",bg:restricted?"#FEF2F2":"#fff",cursor:disabled?"not-allowed":"text"})}>
+        <span aria-hidden="true" style={{display:"inline-flex",flexShrink:0,overflow:"hidden",width:(has&&restricted&&!open)?0:16,marginRight:(has&&restricted&&!open)?-8:0,opacity:(has&&restricted&&!open)?0:1,transition:"width .22s ease,margin .22s ease,opacity .18s ease"}}><I n="search" s={16} c="#525252"/></span>
         <div style={fcell}>
-          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={36} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
+          <FL label="Buscar ubicación" req up={up} act={open} need={flag&&!open} bw={((open&&!restricted)||flag)?2.4:1} leftDown={32} danger={restricted&&!open} bg={restricted?"#FEF2F2":"#fff"}/>
           {open
             ?<input ref={ref} value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Buscar ubicación" autoComplete="off" style={{...fval,border:"none",outline:"none",padding:0,background:"transparent",fontFamily:"inherit"}}/>
             :<span style={{...fval,display:"flex",alignItems:"center"}}>{val}</span>}
         </div>
-        {has&&!disabled&&<button type="button" aria-label="Quitar ubicación" onClick={e=>{e.stopPropagation();setLoc("","","");setQ("");setPath({c:"",s:""});}} style={{width:24,height:24,borderRadius:6,border:`1px solid ${T.border}`,background:"#fff",display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><I n="x" s={12} c={T.muted}/></button>}
+        {has&&!disabled&&<button type="button" aria-label="Quitar ubicación" onClick={e=>{e.stopPropagation();setLoc("","","");setQ("");setPath({c:"",s:""});}} style={{width:24,height:24,marginRight:-5,borderRadius:6,border:"none",background:"transparent",display:"inline-flex",alignItems:"center",justifyContent:"center",cursor:"pointer",flexShrink:0}}><I n="x" s={14} c="#525252"/></button>}
       </div>
       {open&&!disabled&&<>
         <div onClick={()=>{setOpen(false);setQ("");}} style={{position:"fixed",inset:0,zIndex:100}}/>
@@ -604,7 +608,7 @@ function VehicleBar({data,owner,disabled,onBrandChange,onModelChange,onColorChan
   
 
   return(
-    <div className="au" style={{display:"flex",alignItems:"center",gap:16,padding:"16px 20px",borderRadius:14,background:T.card,border:`1.5px solid ${T.border}`,opacity:disabled?.55:1,transition:"opacity .3s"}}>
+    <div className="au" style={{display:"flex",alignItems:"center",gap:16,padding:"16px 20px",borderRadius:14,background:T.card,border:`1.5px solid ${T.border}`,opacity:disabled?.7:1,transition:"opacity .3s"}}>
       <BrandMark name={data?.brand} s={40}/>
       <div style={{flex:1,display:"flex",gap:28,alignItems:"baseline",flexWrap:"wrap"}}>
         <div><div style={{fontSize:11,fontWeight:700,color:T.muted,textTransform:"uppercase",letterSpacing:".06em",marginBottom:2}}>Marca y Modelo</div><div style={{fontSize:15,fontWeight:700,color:T.slate900}}>{data.brand}, {data.model}</div></div>
@@ -646,7 +650,7 @@ function Evidence({hasPhotos,disabled,fixedH}){
   };
 
   return(
-    <div style={{opacity:disabled?.55:1,transition:"opacity .3s",flex:fixedH?"0 0 auto":1,minHeight:fixedH?0:88,display:"flex",flexDirection:"column"}}>
+    <div style={{opacity:disabled?.7:1,transition:"opacity .3s",flex:fixedH?"0 0 auto":1,minHeight:fixedH?0:88,display:"flex",flexDirection:"column"}}>
       <SH t="Evidencia" bg={hasPhotos?undefined:"#E7E5E4"}/>
       <div style={fixedH?{display:"flex",gap:12,height:140}:{display:"flex",gap:"var(--g,12px)",flex:1,minHeight:0,maxHeight:170}}>
         {labels.map((lbl,i)=>{
@@ -731,7 +735,7 @@ function CheckInForm({brand,setBrand,model,setModel,color,setColor,name,setName,
         <ColorPicker value={color} onSelect={setColor} disabled={dis} need={!dis}/>
         <NameInput value={name} onChange={e=>setName(e.target.value)} plate={plate} disabled={dis} req need={!dis}/>
       </div>
-      {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:T.kigo600}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
+      {kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}><span style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 12px",borderRadius:8,background:T.kigo50,fontSize:12,fontWeight:500,color:"#B84A00"}}>✦ Datos obtenidos por medio de una consulta Kigo</span></div>}
       {!kigoData&&<div style={{marginBottom:"var(--sg,24px)"}}/>}
 
       {/* ── DATOS DE LA VISITA ── */}
@@ -1052,7 +1056,7 @@ function CheckInAuto(){
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={e=>setPlate(cleanPlate(e.target.value))} maxLength={7}
-                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                onKeyDown={e=>e.key==="Enter"&&doSearch()} autoFocus placeholder="Escriba la placa" className="plate-in" aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
             </div>
             <button onClick={doSearch} disabled={!plate.trim()} className="tr"
               style={{width:120,height:56,borderRadius:12,fontSize:16,fontWeight:600,cursor:plate.trim()?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,...(plate.trim()?{border:"1.5px solid transparent",background:T.kigo500,color:"#FAFAFA"}:DIS_BTN)}}>
@@ -1073,7 +1077,7 @@ function CheckInAuto(){
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
             <div style={{position:"relative",width:330,flexShrink:0}}>
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
-              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
+              <input disabled value={plate} aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",opacity:.8}}/>
             </div>
             <div style={{width:120,height:56,borderRadius:12,background:T.kigo500,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
               <div className="ap" style={{width:18,height:18,border:"3px solid rgba(255,255,255,0.3)",borderTopColor:"#fff",borderRadius:"50%",animation:"spin .8s linear infinite"}}/>
@@ -1095,7 +1099,7 @@ function CheckInAuto(){
 
           <div style={{display:"flex",gap:0,alignItems:"stretch",flex:1,minHeight:0}}>
             {/* ── LEFT (70%) ── */}
-            <div style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"clamp(36px,5.2vh,44px)","--sg":"clamp(12px,2.4vh,24px)","--g":"clamp(6px,1.3vh,12px)"}}>
+            <div style={{flex:1,minWidth:0,minHeight:0,display:"flex",flexDirection:"column","--fh":"round(clamp(36px,5.2vh,44px),2px)","--sg":"round(clamp(12px,2.4vh,24px),4px)","--g":"round(clamp(6px,1.3vh,12px),2px)"}}>
           {/* Placa */}
           <div style={{marginBottom:"clamp(10px,2vh,20px)",paddingTop:14,flexShrink:0}}>
           <div style={{display:"flex",gap:16,alignItems:"center"}}>
@@ -1103,10 +1107,10 @@ function CheckInAuto(){
               <label style={{position:"absolute",top:-10,left:14,background:"linear-gradient(to bottom,transparent 10px,#fff 10px)",lineHeight:"16px",padding:"0 6px",fontSize:13,fontWeight:600,color:"#404040",zIndex:1}}>Placa *</label>
               <input ref={ref} type="text" value={plate} onChange={handlePlateChange} maxLength={7}
                 onKeyDown={e=>e.key==="Enter"&&dis&&plate.trim()&&doSearch()}
-                aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#706260",outline:"none",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
+                aria-label="Número de placa" style={{width:"100%",height:56,padding:"0 46px 0 18px",borderRadius:12,border:"2px solid #404040",fontSize:24,fontWeight:700,color:"#262626",background:"#fff",fontFamily:"inherit",letterSpacing:".01em"}}/>
               <button onClick={handleX} className="tr" aria-label="Limpiar placa"
-                style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",width:30,height:30,borderRadius:8,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#262626"}}>
-                <I n="x" s={18}/>
+                style={{position:"absolute",right:9,top:"50%",transform:"translateY(-50%)",width:30,height:30,borderRadius:8,border:"none",background:"transparent",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#525252"}}>
+                <I n="x" s={14} c="#525252"/>
               </button>
             </div>
             <button onClick={()=>{if(dis&&plate.trim())doSearch();}} disabled={!dis||!plate.trim()} className="tr"
